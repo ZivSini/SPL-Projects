@@ -9,6 +9,8 @@ public interface StompMessagingProtocol  {
     void start(int connectionId, Connections<String> connections);
     
     void process(String message);
+    // in Impl:
+	// ((Command) message).exectue();
 	
 	/**
      * @return true if the connection should be terminated
