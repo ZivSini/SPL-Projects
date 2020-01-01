@@ -3,7 +3,7 @@ package bgu.spl.net.api;
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ConnectionsImpl;
 
-public class StompProtocol implements StompMessagingProtocol {
+public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
 
     private ConnectionsImpl connections;
@@ -16,6 +16,14 @@ public class StompProtocol implements StompMessagingProtocol {
     @Override
     public void process(String message) {
 
+
+
+
+    }
+
+    @Override
+    public T process(T msg) {
+        return null;
     }
 
     @Override
