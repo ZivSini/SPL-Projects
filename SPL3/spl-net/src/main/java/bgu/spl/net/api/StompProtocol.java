@@ -5,8 +5,9 @@ import bgu.spl.net.srv.ConnectionsImpl;
 
 public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
+    private boolean shouldTerminate =false;
 
-    private ConnectionsImpl connections;
+//    private ConnectionsImpl connections; //
 
     @Override
     public void start(int connectionId, Connections<String> connections) {
@@ -14,27 +15,24 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
     }
 
     @Override
-    public void process(String message) {
-
-
-
-
-    }
-
-    @Override
     public T process(T msg) {
+
+
+
+
+
         return null;
     }
 
     @Override
     public boolean shouldTerminate() {
-        return false;
+        return shouldTerminate;
     }
 
 
 
-    public ConnectionsImpl getConnections() {
-        return connections;
-    }
+//    public ConnectionsImpl getConnections() {
+//        return connections;
+//    }
 
 }

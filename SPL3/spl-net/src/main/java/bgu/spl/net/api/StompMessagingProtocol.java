@@ -7,8 +7,8 @@ public interface StompMessagingProtocol<T> extends MessagingProtocol<T>  {
 	 * Used to initiate the current client protocol with it's personal connection ID and the connections implementation
 	**/
     void start(int connectionId, Connections<String> connections);
-    
-    void process(String message);
+
+	public T process(T msg);
     // in Impl:
 	// ((Command) message).exectue();
 	
