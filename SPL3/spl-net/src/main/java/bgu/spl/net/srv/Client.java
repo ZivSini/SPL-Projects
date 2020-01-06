@@ -4,6 +4,7 @@ public class Client {
 
     private String name;
 
+
     public Client(String name, String password, int connectioId) {
         this.name = name;
         this.password = password;
