@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class ConnectionsImpl <T>implements Connections<T> {
 
-    private Map<Client, ConnectionHandler> clients_ConsHandMap;
-    private Map<Integer,Client> clientMap;
+    private Map<Integer, ConnectionHandler> clients_ConsHandMap;
+    private Map<Integer,Client> clientsMap;
     private Map<String, List<Integer>> topics_subsMap;
 
 
@@ -17,8 +17,7 @@ public class ConnectionsImpl <T>implements Connections<T> {
     @Override
     /** uses the ConnectionHandler's send methods of this {@param} connectoinId to flush() the {@param} msg  */
     public boolean send(int connectionId, T msg) throws IOException {
-        Client c = clientMap.get(connectionId);
-        clients_ConsHandMap.get(c).send(msg);
+        clients_ConsHandMap.get(connectionId).send(msg);
         return false;
     }
 
@@ -36,21 +35,19 @@ public class ConnectionsImpl <T>implements Connections<T> {
 
     }
 
-    public Map<Client,ConnectionHandler> getClients_ConsHandMap() {
+    public Map<Integer,ConnectionHandler> getClients_ConsHandMap() {
         return clients_ConsHandMap;
     }
 
-    public void setClients_ConsHandMap(Map<Client, ConnectionHandler> clients_ConsHandMap) {
-        this.clients_ConsHandMap = clients_ConsHandMap;
 
 
-    }
-    public Map<Integer, Client> getClientMap() {
-        return clientMap;
+
+    public Map<Integer, Client> getClientsMap() {
+        return clientsMap;
     }
 
-    public void setClientMap(Map<Integer, Client> clientMap) {
-        this.clientMap = clientMap;
+    public void setClientsMap(Map<Integer, Client> clientsMap) {
+        this.clientsMap = clientsMap;
     }
 
 

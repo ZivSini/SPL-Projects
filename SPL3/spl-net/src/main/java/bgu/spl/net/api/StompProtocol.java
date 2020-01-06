@@ -2,6 +2,7 @@ package bgu.spl.net.api;
 
 import bgu.spl.net.srv.Client;
 import bgu.spl.net.srv.Connections;
+import bgu.spl.net.srv.IdGetter;
 import bgu.spl.net.srv.ReplyMessage;
 
 
@@ -38,10 +39,10 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
 
                 // client exist
-                if (connections.getClientMap().containsKey(connectionId)) {
+                if (connections.getClientsMap().containsKey(connectionId)) {
 
                     // wrong password
-                    if (connections.getClientMap().get(connectionId).getPassword() != clientPW) {
+                    if (connections.getClientsMap().get(connectionId).getPassword() != clientPW) {
                         msgToReply = "ERROR \n" +
                                 "message: wrong password\n" +
                                 "\n" + // end of headers - start of body
@@ -51,7 +52,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         //TODO: DISCONNECT SOMEHOW
 
                         // user is already logged in
-                    } else if (connections.getClientMap().get(connectionId).isLoggedIn()) {
+                    } else if (connections.getClientsMap().get(connectionId).isLoggedIn()) {
                         msgToReply = "ERROR \n" +
                                 "message: user is already logged in\n" +
                                 "\n" + // end of headers - start of body
@@ -72,7 +73,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 // client doesn't exist
                 else {
                     Client c = new Client(clientName,clientPW,connectionId);
-                    connections.getClientMap().put(connectionId,c);
+                    connections.getClientsMap().put(connectionId,c);
                     msgToReply = "CONNECTED \n" +
                             version + "\n\n" +
                             "\u0000";
@@ -130,7 +131,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
                 msgToReply="MESSAGE\n" +
                         "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
-                        "Messege-id:"+getUniqueIdSomehow()+"\n"+
+                        "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
 
@@ -168,7 +169,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
 
 
-    public Connections<String> getConnections() {
+    public Connections<T> getConnections() {
         return connections;
     }
 

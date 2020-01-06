@@ -12,11 +12,11 @@ public interface Connections<T> {
 
     void disconnect(int connectionId);
 
-    Map<Client, ConnectionHandler> getClients_ConsHandMap() ;
+    Map<Integer, ConnectionHandler> getClients_ConsHandMap() ;
 
     Map<String, List<Integer>> getTopics_subsMap() ;
 
-    public Map<Integer, Client> getClientMap();
+    public Map<Integer, Client> getClientsMap();
 
 
 
