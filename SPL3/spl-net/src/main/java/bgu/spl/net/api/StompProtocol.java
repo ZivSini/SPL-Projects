@@ -102,6 +102,27 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 connections.send(connectionId, (T) msgToReply);
 
             }
+            case  ("UNSUBSCRIBE"):{
+
+                int  colonIndex = stringMsg[1].indexOf(":");
+                String topic = stringMsg[1].substring(colonIndex+1);
+//                msgReply.setTopic(topic);
+//                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
+                colonIndex = stringMsg[2].indexOf(":");
+                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
+                this.topics_IdsMap.put(topic,subscriptionId);
+                colonIndex = stringMsg[3].indexOf(":");
+                String receiptId = stringMsg[3].substring(colonIndex);
+                connections.getTopics_subsMap().get(topic).add(connectionId);
+                msgToReply ="RECEIPT \n" +
+                        "receipt-id:"+receiptId+"\n\n"+
+                        "\u0000";
+//                msgReply.setMsg(msgToReply);
+
+                this.connections.getTopics_subsMap().get(topic).remove(connectionId);/** unsubscribe from the topic */
+
+                connections.send(connectionId, (T) msgToReply);
+            }
             case  ("SEND"):{
                 String topic = stringMsg[1];
                 msgReply.setTopic(topic);
@@ -123,7 +144,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                     this.connections.getTopics_subsMap().get(topic).remove(connectionId);
                 }
                 msgToReply="RECIEPT\n" +
-                        "receipt-id:"+stringMsg[1].substring(8)
+                        "receipt-id:"+stringMsg[1].substring(8)+"\n\n"
                         +"\u0000";
                 connections.send(connectionId, (T) msgToReply);
 
