@@ -8,7 +8,7 @@ public class StompServer {
 
     public static void main(String[] args) {
 
-        int port = 7777; // args[]
+        int port = 7778; // args[]
 
 
        // if (args[the right number]=="tpc){

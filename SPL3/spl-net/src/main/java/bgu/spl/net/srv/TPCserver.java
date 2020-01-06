@@ -54,6 +54,7 @@ public class TPCserver <T>extends BaseServer<T> {
 
             }
         } catch (IOException ex) {
+            System.out.println("!!!!!!!! TPC SERVER "+ex+ " !!!!!!!!!!!!!!!!!!");
         }
 
         System.out.println("server closed!!!");
