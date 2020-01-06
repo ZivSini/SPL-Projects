@@ -1,7 +1,6 @@
 package bgu.spl.net.api;
 
 import bgu.spl.net.srv.Connections;
-import bgu.spl.net.srv.ConnectionsImpl;
 import bgu.spl.net.srv.DataBase;
 import bgu.spl.net.srv.ReplyMessage;
 
@@ -30,6 +29,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
         switch (stringMsg[0]){
             case  ("CONNECT"):{
 
+
             }
             case  ("SUBSCRIBE"):{
                 int  colonIndex = stringMsg[1].indexOf(":");
@@ -41,7 +41,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 this.topicsSubIdsMap.put(topic,subId);
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
-                DataBase.getInstance().addToTopicSubsMap(topic,connectionId);
+                connections.getTopics_subsMap().get(topic).add(connectionId);
                 msgToReply ="RECEIPT \n" +
                         "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";

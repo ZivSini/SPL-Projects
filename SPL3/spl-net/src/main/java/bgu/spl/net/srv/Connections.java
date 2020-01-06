@@ -1,6 +1,8 @@
 package bgu.spl.net.srv;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public interface Connections<T> {
 
@@ -9,4 +11,10 @@ public interface Connections<T> {
     void send(String channel, T msg) throws IOException;
 
     void disconnect(int connectionId);
+
+    Map<Integer, ConnectionHandler> getClients() ;
+
+    Map<String, List<Integer>> getTopics_subsMap() ;
+
+
 }

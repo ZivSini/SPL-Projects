@@ -42,16 +42,13 @@ public class TPCserver <T>extends BaseServer<T> {
 
                 Socket clientSock = serverSock.accept();
                 MessagingProtocol protocol = protocolFactory.get();
-                ((StompMessagingProtocol)protocol).start(IdGetter.get(),connections);
-
-
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
                         protocol);
 
                 int id = IdGetter.get(); //TODO: IMPLEMENT - gets an id for this connection/client
-                ((ConnectionsImpl)connections).getClients().put(id,handler); // adds the new client to the clients-connections map
+                connections.getClients().put(id,handler); /** adds the new client to the clients-connections map */
                 ((StompMessagingProtocol)protocol).start(id,connections);
                 execute(handler);
 
