@@ -27,6 +27,7 @@ public class TPCserver <T>extends BaseServer<T> {
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
         this.sock = null;
+        this.connections= ConnectionsImpl.getInstance();
 
 }
 

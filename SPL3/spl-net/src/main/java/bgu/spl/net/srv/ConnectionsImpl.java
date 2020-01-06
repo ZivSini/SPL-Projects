@@ -3,13 +3,26 @@ package bgu.spl.net.srv;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionsImpl <T>implements Connections<T> {
 
     private Map<Integer, ConnectionHandler> clients_ConsHandMap;
     private Map<Integer,Client> clientsMap;
     private Map<String, List<Integer>> topics_subsMap;
+    private static ConnectionsImpl single_instance=null;
 
+    private ConnectionsImpl(){
+        clients_ConsHandMap=new ConcurrentHashMap<>();
+        clientsMap = new ConcurrentHashMap<>();
+        topics_subsMap = new ConcurrentHashMap<>();
+    }
+
+    public static ConnectionsImpl getInstance(){
+        if (single_instance==null)
+            single_instance = new ConnectionsImpl();
+        return single_instance;
+    }
 
 
 

@@ -29,6 +29,7 @@ public class ObjectEncoderDecoder implements MessageEncoderDecoder<Serializable>
         } else {
             objectBytes[objectBytesIndex] = nextByte;
             if (++objectBytesIndex == objectBytes.length) {
+                System.out.println("got here to encdec 33");
                 Serializable result = deserializeObject();
                 objectBytes = null;
                 return result;
