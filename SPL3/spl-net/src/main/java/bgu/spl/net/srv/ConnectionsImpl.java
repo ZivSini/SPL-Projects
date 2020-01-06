@@ -6,9 +6,11 @@ import java.util.Map;
 
 public class ConnectionsImpl <T>implements Connections<T> {
 
-    private Map<Integer, ConnectionHandler> clients;
+    private Map<Client, ConnectionHandler> clients;
 
     private Map<String, List<Integer>> topics_subsMap;
+
+
 
 
     @Override
@@ -32,11 +34,11 @@ public class ConnectionsImpl <T>implements Connections<T> {
 
     }
 
-    public Map<Integer, ConnectionHandler> getClients() {
+    public Map<Client,ConnectionHandler> getClients() {
         return clients;
     }
 
-    public void setClients(Map<Integer, ConnectionHandler> clients) {
+    public void setClients(Map<Client, ConnectionHandler> clients) {
         this.clients = clients;
 
 

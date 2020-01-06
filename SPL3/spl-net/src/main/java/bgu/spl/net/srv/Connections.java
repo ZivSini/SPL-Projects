@@ -12,7 +12,7 @@ public interface Connections<T> {
 
     void disconnect(int connectionId);
 
-    Map<Integer, ConnectionHandler> getClients() ;
+    Map<Client, ConnectionHandler> getClients() ;
 
     Map<String, List<Integer>> getTopics_subsMap() ;
 
