@@ -1,5 +1,6 @@
 package bgu.spl.net.api;
 
+import bgu.spl.net.srv.Client;
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ReplyMessage;
 
@@ -26,7 +27,59 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
         ReplyMessage msgReply = new ReplyMessage();
         String msgToReply = "";
         switch (stringMsg[0]){
-            case  ("CONNECT"):{
+            case  ("CONNECT"): {
+                String version = stringMsg[1].substring(6); // stringMsg[1].substring(0,6)="accept-"
+                String clientName = stringMsg[3].substring(5); // stringMsg[3].substring(0,5)="login:"
+                String clientPW = stringMsg[4].substring(8); // stringMsg[4].substring(0,8)="password:"
+
+
+                //TODO: HANDLE SOCKET ERROR
+
+
+                // client exist
+                if (connections.getClientMap().containsKey(connectionId)) {
+
+                    // wrong password
+                    if (connections.getClientMap().get(connectionId).getPassword() != clientPW) {
+                        msgToReply = "ERROR \n" +
+                                "message: wrong password\n" +
+                                "\n" + // end of headers - start of body
+                                "MESSAGE\n" +
+                                "the password does not match the user account name" +
+                                "\u0000";
+                        //TODO: DISCONNECT SOMEHOW
+
+                        // user is already logged in
+                    } else if (connections.getClientMap().get(connectionId).isLoggedIn()) {
+                        msgToReply = "ERROR \n" +
+                                "message: user is already logged in\n" +
+                                "\n" + // end of headers - start of body
+                                "MESSAGE\n" +
+                                "this user is already logged in" +
+                                "\u0000";
+                        //TODO: DISCONNECT SOMEHOW
+                    }
+
+                    // user exist & not logged in & password is correct
+                    else {
+                        msgToReply = "CONNECTED \n" +
+                                version + "\n\n" +
+                                "\u0000";
+                    }
+                }
+
+                // client doesn't exist
+                else {
+                    Client c = new Client(clientName,clientPW,connectionId);
+                    connections.getClientMap().put(connectionId,c);
+                    msgToReply = "CONNECTED \n" +
+                            version + "\n\n" +
+                            "\u0000";
+                }
+
+                        msgReply.setMsg(msgToReply);
+                connections.send(connectionId,(T)msgToReply);
+
 
 
             }
@@ -72,7 +125,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 throw new IllegalStateException("Unexpected value: " + stringMsg[0]);
         }
 
-        connections.send(msgReply.getTopic(),msgReply.getMsg());
+
 
         return (T) msgReply;
     }
