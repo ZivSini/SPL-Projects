@@ -86,8 +86,8 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             case  ("SUBSCRIBE"):{
                 int  colonIndex = stringMsg[1].indexOf(":");
                 String topic = stringMsg[1].substring(colonIndex+1);
-                msgReply.setTopic(topic);
-                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
+//                msgReply.setTopic(topic);
+//                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
                 this.topics_IdsMap.put(topic,subscriptionId);
@@ -97,25 +97,34 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 msgToReply ="RECEIPT \n" +
                         "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";
-                msgReply.setMsg(msgToReply);
+//                msgReply.setMsg(msgToReply);
+                connections.send(connectionId, (T) msgToReply);
 
             }
             case  ("SEND"):{
                 String topic = stringMsg[1];
                 msgReply.setTopic(topic);
                 String sendType = stringMsg[2];
-                if (sendType.contains("has added the book")){
-                    msgToReply="MESSAGE\n" +
-                            "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
-                            "Messege-id:"+getUniqueIdSomehow()+"\n"+
-                            "destination:"+topic+"\n\n"+
-                            stringMsg[3]+"\n \u0000";
 
-                }
+                msgToReply="MESSAGE\n" +
+                        "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
+                        "Messege-id:"+getUniqueIdSomehow()+"\n"+
+                        "destination:"+topic+"\n\n"+
+                        stringMsg[3]+"\n \u0000";
+
+
                 msgReply.setMsg(msgToReply);
-
+                connections.send(msgReply.getTopic(), (T) msgReply.getMsg());
             }
             case ("DISCONNECT"):{
+                for(String topic: this.connections.getTopics_subsMap().keySet())
+                {
+                    this.connections.getTopics_subsMap().get(topic).remove(connectionId);
+                }
+                msgToReply="RECIEPT\n" +
+                        "receipt-id:"+stringMsg[1].substring(8)
+                        +"\u0000";
+                connections.send(connectionId, (T) msgToReply);
 
             }
 
