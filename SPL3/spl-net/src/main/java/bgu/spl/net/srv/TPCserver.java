@@ -48,7 +48,7 @@ public class TPCserver <T>extends BaseServer<T> {
                         protocol);
 
                 int id = IdGetter.get(); //TODO: IMPLEMENT - gets an id for this connection/client
-                connections.getClients().put(id,handler); /** adds the new client to the clients-connections map */
+                connections.getClients_ConsHandMap().put(id,handler); /** adds the new client to the clients-connections map */
                 ((StompMessagingProtocol)protocol).start(id,connections);
                 execute(handler);
 
