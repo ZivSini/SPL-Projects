@@ -3,28 +3,30 @@ package bgu.spl.net.api;
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ConnectionsImpl;
 import bgu.spl.net.srv.DataBase;
+import bgu.spl.net.srv.ReplyMessage;
 
+
+import java.io.IOException;
 import java.util.Map;
 
 public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
     private boolean shouldTerminate =false;
     private Map<String,Integer> topicsSubIdsMap;
-    private Connections<String> connections;
+    private Connections<T> connections;
     private int connectionId;
 
     @Override
-    public void start(int connectionId, Connections<String> connections) {
+    public void start(int connectionId, Connections<T> connections) {
         this.connectionId=connectionId;
         this.connections=connections;
-
-
     }
 
     @Override
-    public T process(T msg) {
+    public T process(T msg) throws IOException {
         String[] stringMsg=((String) msg).split("\n");
-        String msgReply = "";
+        ReplyMessage msgReply = new ReplyMessage();
+        String msgToReply = "";
         switch (stringMsg[0]){
             case  ("CONNECT"):{
 
@@ -32,6 +34,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             case  ("SUBSCRIBE"):{
                 int  colonIndex = stringMsg[1].indexOf(":");
                 String topic = stringMsg[1].substring(colonIndex+1);
+                msgReply.setTopic(topic);
                 //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subId = Integer.parseInt(stringMsg[2].substring(colonIndex));
@@ -39,21 +42,25 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
                 DataBase.getInstance().addToTopicSubsMap(topic,connectionId);
-                msgReply ="RECEIPT \n" +
+                msgToReply ="RECEIPT \n" +
                         "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";
+                msgReply.setMsg(msgToReply);
+
             }
             case  ("SEND"):{
                 String topic = stringMsg[1];
+                msgReply.setTopic(topic);
                 String sendType = stringMsg[2];
                 if (sendType.contains("has added the book")){
-                    msgReply="MESSAGE\n" +
+                    msgToReply="MESSAGE\n" +
                             "subscription:"+this.topicsSubIdsMap.get(topic).toString()+"\n"+
                             "Messege-id:"+getUniqueIdSomehow()+"\n"+
                             "destination:"+topic+"\n\n"+
                             stringMsg[3]+"\n \u0000";
 
                 }
+                msgReply.setMsg(msgToReply);
 
             }
             case ("DISCONNECT"):{
@@ -66,7 +73,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 throw new IllegalStateException("Unexpected value: " + stringMsg[0]);
         }
 
-
+        connections.send(msgReply.getTopic(),msgReply.getMsg());
 
         return (T) msgReply;
     }

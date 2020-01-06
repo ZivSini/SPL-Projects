@@ -2,6 +2,7 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -40,13 +41,20 @@ public class TPCserver <T>extends BaseServer<T> {
             while (!Thread.currentThread().isInterrupted()) {
 
                 Socket clientSock = serverSock.accept();
+                MessagingProtocol protocol = protocolFactory.get();
+                ((StompMessagingProtocol)protocol).start(IdGetter.get(),connections);
+
 
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get());
+                        protocol);
 
+                int id = IdGetter.get(); //TODO: IMPLEMENT - gets an id for this connection/client
+                ((ConnectionsImpl)connections).getClients().put(id,handler); // adds the new client to the clients-connections map
+                ((StompMessagingProtocol)protocol).start(id,connections);
                 execute(handler);
+
             }
         } catch (IOException ex) {
         }

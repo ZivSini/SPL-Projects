@@ -2,6 +2,9 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
+import bgu.spl.net.api.StompProtocol;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -34,10 +37,9 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
                 T nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
                     T response = protocol.process(nextMessage);
-                    if (response != null) {
-                        out.write(encdec.encode(response));
-                        out.flush();
-                    }
+//                    if (response != null) {
+//                        send(response);
+//                    }
                 }
             }
 
@@ -54,10 +56,18 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     }
 
     @Override
-    public void send(T msg) {
+    public void send(T msg)  {
         //IMPLEMENT IF NEEDED
-       // protocol.getConnections.send();
+        try {
+            out.write(encdec.encode(msg));
+            out.flush();
+        } catch (IOException e) {
+            System.out.println("BLOCKING CON HAN::SEND - "+e+"!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
 
+    }
 
+    public BufferedInputStream getIn() {
+        return in;
     }
 }
