@@ -1,7 +1,6 @@
 package bgu.spl.net.api;
 
 import bgu.spl.net.srv.Connections;
-import bgu.spl.net.srv.DataBase;
 import bgu.spl.net.srv.ReplyMessage;
 
 
@@ -11,7 +10,7 @@ import java.util.Map;
 public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
     private boolean shouldTerminate =false;
-    private Map<String,Integer> topicsSubIdsMap;
+    private Map<String,Integer> topics_IdsMap; /** Hold the subscription id for each topic subscribed to */
     private Connections<T> connections;
     private int connectionId;
 
@@ -38,7 +37,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subId = Integer.parseInt(stringMsg[2].substring(colonIndex));
-                this.topicsSubIdsMap.put(topic,subId);
+                this.topics_IdsMap.put(topic,subId);
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
                 connections.getTopics_subsMap().get(topic).add(connectionId);
@@ -54,7 +53,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 String sendType = stringMsg[2];
                 if (sendType.contains("has added the book")){
                     msgToReply="MESSAGE\n" +
-                            "subscription:"+this.topicsSubIdsMap.get(topic).toString()+"\n"+
+                            "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
                             "Messege-id:"+getUniqueIdSomehow()+"\n"+
                             "destination:"+topic+"\n\n"+
                             stringMsg[3]+"\n \u0000";
