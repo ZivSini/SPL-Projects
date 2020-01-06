@@ -36,8 +36,8 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 msgReply.setTopic(topic);
                 //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
-                Integer subId = Integer.parseInt(stringMsg[2].substring(colonIndex));
-                this.topics_IdsMap.put(topic,subId);
+                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
+                this.topics_IdsMap.put(topic,subscriptionId);
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
                 connections.getTopics_subsMap().get(topic).add(connectionId);
