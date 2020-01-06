@@ -21,6 +21,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
         this.connections=connections;
     }
 
+
     @Override
     public T process(T msg) throws IOException {
         String[] stringMsg=((String) msg).split("\n");
