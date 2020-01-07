@@ -12,7 +12,7 @@ import java.util.Map;
 public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
     private boolean shouldTerminate =false;
-    private Map<String,Integer> topics_IdsMap; /** Hold the subscription id for each topic subscribed to */
+    private Map<Integer,String> topics_IdsMap; /** Hold the subscription id for each topic subscribed to */
     private Connections<T> connections;
     private int connectionId;
 
@@ -92,7 +92,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 //                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
-                this.topics_IdsMap.put(topic,subscriptionId);
+                this.topics_IdsMap.put(subscriptionId,topic);
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
                 connections.getTopics_subsMap().get(topic).add(connectionId);
@@ -104,19 +104,14 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
             }
             case  ("UNSUBSCRIBE"):{
-
-                int  colonIndex = stringMsg[1].indexOf(":");
-                String topic = stringMsg[1].substring(colonIndex+1);
-//                msgReply.setTopic(topic);
-//                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
+                int colonIndex = stringMsg[1].indexOf(":");
+                Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex));
+                String topic = this.topics_IdsMap.get(subscriptionId);
                 colonIndex = stringMsg[2].indexOf(":");
-                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
-                this.topics_IdsMap.put(topic,subscriptionId);
-                colonIndex = stringMsg[3].indexOf(":");
-                String receiptId = stringMsg[3].substring(colonIndex);
-                connections.getTopics_subsMap().get(topic).add(connectionId);
+                String receiptId = stringMsg[2].substring(colonIndex);
                 msgToReply ="RECEIPT \n" +
-                        "receipt-id:"+receiptId+"\n\n"+
+                        "id:"+subscriptionId+"\n"+
+                        "receipt:"+receiptId+"\n\n"+
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
 
@@ -144,8 +139,10 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 {
                     this.connections.getTopics_subsMap().get(topic).remove(connectionId);
                 }
+                int colonIndex = stringMsg[1].indexOf(":");
+                String receiptId = stringMsg[1].substring(colonIndex);
                 msgToReply="RECIEPT\n" +
-                        "receipt-id:"+stringMsg[1].substring(8)+"\n\n"
+                        "receipt-id:"+receiptId+"\n\n"
                         +"\u0000";
                 connections.send(connectionId, (T) msgToReply);
 
