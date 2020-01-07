@@ -115,3 +115,7 @@ void ConnectionHandler::close() {
 void ConnectionHandler::run() {
 
 }
+
+void ConnectionHandler::send() {
+
+}

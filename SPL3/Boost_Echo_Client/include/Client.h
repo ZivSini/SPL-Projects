@@ -12,7 +12,7 @@
 class Client {
 
 private:
-
+    Map<String,List> booksByTopics;
 
 
 

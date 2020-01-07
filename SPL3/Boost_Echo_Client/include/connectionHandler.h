@@ -49,6 +49,8 @@ public:
     void close();
 
     void run();
+
+    void send();
  
 }; //class ConnectionHandler
  

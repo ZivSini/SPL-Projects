@@ -7,14 +7,10 @@
 #include <mutex>
 #include <thread>
 #include <boost/algorithm/string.hpp>
+#include "../include/connectionHandler.h"
 
 using namespace std;
 class KeyBoardThread{
-private:
-    int _id;
-    std::mutex & _mutex;
-public:
-    KeyBoardThread (int id, std::mutex& mutex) : _id(id), _mutex(mutex) {}
 
     void runKeyBoard(){
         string input;
