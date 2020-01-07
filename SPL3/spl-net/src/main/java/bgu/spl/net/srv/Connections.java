@@ -17,6 +17,7 @@ public interface Connections<T> {
     Map<String, List<Integer>> getTopics_subsMap() ;
 
     public Map<Integer, Client> getClientsMap();
+    public Map<Integer, Map<String, Integer>> getConnId_topic_subId_map();
 
 
 
