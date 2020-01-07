@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <list>
+
 
 using boost::asio::ip::tcp;
 
@@ -12,7 +14,9 @@ private:
 	const std::string host_;
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
-	tcp::socket socket_; 
+	tcp::socket socket_;
+    std::list<std::pair<std::string,std::string>> booksOrigin;
+
  
 public:
     ConnectionHandler(std::string host, short port);
@@ -51,6 +55,8 @@ public:
     void run();
 
     void send();
+
+    std::string getBookPrev(std::string):
  
 }; //class ConnectionHandler
  
