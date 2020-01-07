@@ -55,7 +55,6 @@ public:
     void run();
 
     void send(std::string);
-    void send();
 
     std::string getBookPrev(std::string):
 

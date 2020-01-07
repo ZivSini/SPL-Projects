@@ -116,24 +116,22 @@ void ConnectionHandler::run() {
 
 }
 
-void ConnectionHandler::send(std::string) {
-
-
-
-
+void ConnectionHandler::send(string msg) {
 
 }
 
-std::string ConnectionHandler::getBookPrev(std::string bookName) {
+string ConnectionHandler::getBookPrev(string bookName) {
     string prevOwner;
     for(std::pair<string,string> p:booksOrigin)
     {
         if (p.first==bookName) {
             prevOwner = p.second;
             booksOrigin.remove(p);
+            return prevOwner;
         }
     }
 
 
     return prevOwner;
+
 }
