@@ -43,8 +43,9 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
                     // wrong password
                     if (connections.getClientsMap().get(connectionId).getPassword() != clientPW) {
+                        /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR \n" +
-                                "message: wrong password\n" +
+                                "message: Wrong password\n" +
                                 "\n" + // end of headers - start of body
                                 "MESSAGE\n" +
                                 "the password does not match the user account name" +
@@ -53,8 +54,9 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
                         // user is already logged in
                     } else if (connections.getClientsMap().get(connectionId).isLoggedIn()) {
+                        /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR \n" +
-                                "message: user is already logged in\n" +
+                                "message: User already logged in\n" +
                                 "\n" + // end of headers - start of body
                                 "MESSAGE\n" +
                                 "this user is already logged in" +
@@ -93,10 +95,12 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
                 this.topics_IdsMap.put(subscriptionId,topic);
+                /** need to add the subscription id of this user to the connectionImpl map that hold all of the subscrip' id of all the client so we can add this id to the message */
+           //     connections.getConnId_topic_subId_map().put()
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
                 connections.getTopics_subsMap().get(topic).add(connectionId);
-                // seccond line MUST be receipt id
+                /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT \n" +
                         "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";
@@ -110,7 +114,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 String topic = this.topics_IdsMap.get(subscriptionId);
                 colonIndex = stringMsg[2].indexOf(":");
                 String receiptId = stringMsg[2].substring(colonIndex);
-                // seccond line MUST be receipt id
+                /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT \n" +
                         "receipt:"+receiptId+"\n\n"+
                         "\u0000";
@@ -126,7 +130,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 String sendType = stringMsg[2];
 
                 msgToReply="MESSAGE\n" +
-                        "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
+                        "subscription:"+this.topics_IdsMap.get(topic)+"\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
@@ -142,7 +146,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 }
                 int colonIndex = stringMsg[1].indexOf(":");
                 String receiptId = stringMsg[1].substring(colonIndex);
-                // seccond line MUST be receipt id
+                /** seccond line MUST be receipt id */
                 msgToReply="RECIEPT\n" +
                         "receipt-id:"+receiptId+"\n\n"
                         +"\u0000";
