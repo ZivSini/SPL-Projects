@@ -28,8 +28,15 @@ private:
     void join(vector<string>);
     void exit(vector<string>);
     void logout();
+    void add(vector<string>);
+    void borrow(vector<string>);
+    void fReturn(vector<string>);
+    void status(vector<string>);
+    string userName;
+
 public:
     KeyBoardThread (int id, std::mutex& mutex) : _id(id), _mutex(mutex) {}
+    void login();
 };
 
 

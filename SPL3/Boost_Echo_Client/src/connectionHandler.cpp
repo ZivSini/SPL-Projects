@@ -123,3 +123,17 @@ void ConnectionHandler::send(std::string) {
 
 
 }
+
+std::string ConnectionHandler::getBookPrev(std::string bookName) {
+    string prevOwner;
+    for(std::pair<string,string> p:booksOrigin)
+    {
+        if (p.first==bookName) {
+            prevOwner = p.second;
+            booksOrigin.remove(p);
+        }
+    }
+
+
+    return prevOwner;
+}
