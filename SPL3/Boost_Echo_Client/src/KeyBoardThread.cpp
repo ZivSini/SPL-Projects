@@ -5,6 +5,7 @@
 #include "../include/KeyBoardThread.h"
 #include <iostream>
 #include <mutex>
+#include <unordered_map>
 #include <thread>
 #include <boost/algorithm/string.hpp>
 #include "../include/connectionHandler.h"
@@ -15,11 +16,11 @@ class KeyBoardThread{
     void runKeyBoard(){
         string input;
         cin>> input;
-        std::vector<std::string> msg_input ;
+        vector<tring> msg_input ;
         boost::split(msg_input, input, boost::is_any_of(" "));
         string first_word = msg_input.at(0);
         switch (first_word){
-            case "login": login();
+            case "login":{login(msg_input);}
             case "join": join();
             case "exit": exit();
             case "add": add();
@@ -31,13 +32,68 @@ class KeyBoardThread{
 
 
 
-}
+    }
 
 
 
+
+    void KeyBoardThread::login(vector<string> msg_input) {
+        string input_host_port = msg_input.at(1)
+        vector<string> host_port;
+        boost::split(host_port, input_host_port, boost::is_any_of(":"));
+        string host = host_port.at(0);
+        string port = host_port.at(1);
+        userName = msg_input.at(2);
+        string password = msg_input.at(3);
+        handler = ConnectionHandler(host, port);
+        if (!handler.connect()) {
+            cout >> "Could not connect to server" >> endl;
+        } else {
+            string connect_stomp_message = "CONNECT\n" +
+                                           "accept-version:1/2\n" +
+                                           "host:stomp.cs.bgu.ac.il\n" +
+                                           "login:" + userName + "\n" +
+                                           "passcode:" + password + "\n\n" +
+                                           "\0";
+            handler.send(connect_stomp_message);
+        }
+    }
+
+    void KeyBoardThread::join(vector<string> msg_input){
+        string topic = msg_input.at(1);
+        string subscribe_stomp_message = "SUBSCRIBE\n" +
+                                         "destination:"+ topic+"\n" +
+                                         "id:"+subscription_id+"\n\n" +
+                                         "\0";
+        handler.send(subscribe_stomp_message);
+        this.subs_id_map.insert(topic,subscription_id);
+        this.subs_id_map.insert[topic]=subs_id_map;
+        subscription_id++;
+    }
+
+
+
+    void KeyBoardThread::exit(vector<string> msg_input) {
+        string topic = msg_input.at(1);
+        unordered_map<string,int>const_iterator got = subs_id_map.find (topic);
+        int id = got.second;
+        string unsubscribe_stomp_message = "UNSUBSCRIBE\n" +
+                                           "id:" + id + "\n\n" +
+                                           "\0";
+        handler.send(unsubscribe_stomp_message);
+        this.subs_id_map.erase(topic);
+    }
+
+
+
+
+    void KeyBoardThread::logout() {
+        string disconnect_stomp_message = "UNSUBSCRIBE\n" +
+                                          "id:" + disconnect_id + "\n\n" +
+                                          "\0";
+        handler.send(disconnect_stomp_message);
+        this->disconnect_id++;
+
+
+    }
 };
-
-void KeyBoardThread::login() {
-
-
-}

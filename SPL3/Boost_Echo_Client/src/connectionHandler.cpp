@@ -116,6 +116,10 @@ void ConnectionHandler::run() {
 
 }
 
-void ConnectionHandler::send() {
+void ConnectionHandler::send(std::string) {
+
+
+
+
 
 }

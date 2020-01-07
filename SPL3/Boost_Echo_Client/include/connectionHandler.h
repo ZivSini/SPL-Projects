@@ -10,7 +10,7 @@ using boost::asio::ip::tcp;
 class ConnectionHandler {
 private:
 	const std::string host_;
-	const short port_;
+    const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_; 
  
@@ -20,7 +20,7 @@ public:
  
     // Connect to the remote machine
     bool connect();
- 
+
     // Read a fixed number of bytes from the server - blocking.
     // Returns false in case the connection is closed before bytesToRead bytes can be read.
     bool getBytes(char bytes[], unsigned int bytesToRead);
@@ -50,7 +50,7 @@ public:
 
     void run();
 
-    void send();
+    void send(std::string);
  
 }; //class ConnectionHandler
  

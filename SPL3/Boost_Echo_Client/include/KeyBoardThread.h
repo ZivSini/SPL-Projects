@@ -8,21 +8,28 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <unordered_map>
 #include <boost/algorithm/string.hpp>
 #include "../include/connectionHandler.h"
+
 
 using namespace std;
 
 
 class KeyBoardThread {
 private:
-    int _id;
+    int unordered_map<string,int> subs_id_map;
+    int subscription_id; // might need to lock this, DK
+    int disconnect_id; // might need to lock this, DK
     std::mutex & _mutex;
     ConnectionHandler handler;
-
+    void login(vector<string>);
+    string userName;
+    void join(vector<string>);
+    void exit(vector<string>);
+    void logout();
 public:
     KeyBoardThread (int id, std::mutex& mutex) : _id(id), _mutex(mutex) {}
-    void login();
 };
 
 
