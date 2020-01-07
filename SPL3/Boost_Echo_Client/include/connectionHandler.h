@@ -22,8 +22,10 @@ private:
     unordered_map<string,string> books_prevOwner_map;
     bool connected;
     unordered_map<string,list<string>*> topic_books_map;
+    unordered_map<int,string> receiptId_topic_map;
+    unordered_map<int,string> receiptId_command_map;
 
- 
+
 public:
     ConnectionHandler(std::string host, short port);
     virtual ~ConnectionHandler();
@@ -64,6 +66,9 @@ public:
 
     string getBookPrevOwner(string);
     void addBook(string topic,string book_name);
+    void add_to_topic_rcpt_map(string topic, int receipt_id);
+    void add_to_rcptId_cmmnd_map(int id,string command);
+    void remove_from_rcptId_cmmnd_map(int id);
 
 }; //class ConnectionHandler
  
