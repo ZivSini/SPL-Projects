@@ -28,13 +28,7 @@ class KeyBoardThread{
             case "status":status(msg_input);
             case "logout":logout();
         }
-
-
-
     }
-
-
-
 
     void KeyBoardThread::login(vector<string> msg_input) {
         string input_host_port = msg_input.at(1)
@@ -55,7 +49,7 @@ class KeyBoardThread{
                                            "login:" + userName + "\n" +
                                            "passcode:" + password + "\n\n" +
                                            "\0";
-            handler.send(connect_stomp_message);
+            handler.sendLine(connect_stomp_message);
         }
     }
 
@@ -65,7 +59,7 @@ class KeyBoardThread{
                                          "destination:"+ topic+"\n" +
                                          "id:"+subscription_id+"\n\n" +
                                          "\0";
-        handler.send(subscribe_stomp_message);
+        handler.sendLine(subscribe_stomp_message);
         this.subs_id_map.insert(topic,subscription_id);
         this.subs_id_map.insert[topic]=subs_id_map;
         subscription_id++;
@@ -80,7 +74,7 @@ class KeyBoardThread{
         string unsubscribe_stomp_message = "UNSUBSCRIBE\n" +
                                            "id:" + id + "\n\n" +
                                            "\0";
-        handler.send(unsubscribe_stomp_message);
+        handler.sendLine(unsubscribe_stomp_message);
         this.subs_id_map.erase(topic);
     }
 
@@ -91,40 +85,40 @@ string sendMsg = "SEND\n"+
         "destination:"+ topic+"\n\n"+
         +userName+" has added the book "+book_name+"\n"+
         "\0";
-    handler.send(msg);
+    handler.sendLine(msg);
     handler.addBook(topic,book_name);
 }
 
-void KeyBoardThread::borrow(vector<string> msg) {
-    string sendMsg = "SEND\n"+
-                     "destination:"+ msg.at(1)+"\n\n"+
-                     +userName+" wish to borrow "+msg.at(2)+"\n"+
-                     "\0";
-    handler.send(msg);
-}
+    void KeyBoardThread::borrow(vector<string> msg) {
+        string sendMsg = "SEND\n"+
+                         "destination:"+ msg.at(1)+"\n\n"+
+                         +userName+" wish to borrow "+msg.at(2)+"\n"+
+                         "\0";
+        handler.sendLine(msg);
+    }
 
 
-void KeyBoardThread::fReturn(vector<string> msg) {
-    string sendMsg = "SEND\n"+
-                     "destination:"+ msg.at(1)+"\n\n"+
-                     "Returning "+msg.at(2)+" to"+handler.getBookPrevOwner(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
-                     "\0";
-    handler.send(msg);
-}
+    void KeyBoardThread::fReturn(vector<string> msg) {
+        string sendMsg = "SEND\n"+
+                         "destination:"+ msg.at(1)+"\n\n"+
+                         "Returning "+msg.at(2)+" to"+handler.getBookPrev(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
+                         "\0";
+        handler.sendLine(msg);
+    }
 
-void KeyBoardThread::status(vector<string> msg) {
-    string sendMsg = "SEND\n"+
-                     "destination:"+ msg.at(1)+"\n\n"+
-                     "book status"+"\n"+
-                     "\0";
-    handler.send(msg);
-}
+    void KeyBoardThread::status(vector<string> msg) {
+        string sendMsg = "SEND\n"+
+                         "destination:"+ msg.at(1)+"\n\n"+
+                         "book status"+"\n"+
+                         "\0";
+        handler.sendLine(msg);
+    }
 
     void KeyBoardThread::logout() {
         string disconnect_stomp_message = "UNSUBSCRIBE\n" +
                                           "id:" + disconnect_id + "\n\n" +
                                           "\0";
-        handler.send(disconnect_stomp_message);
+        handler.sendLine(disconnect_stomp_message);
         this->disconnect_id++;
 
 
