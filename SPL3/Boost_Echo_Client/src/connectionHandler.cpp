@@ -67,7 +67,7 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     }
     return true;
 }
- 
+
 bool ConnectionHandler::getLine(std::string& line) {
     return getFrameAscii(line, '\n');
 }
