@@ -72,7 +72,6 @@ class KeyBoardThread{
 
 
 
-
     void KeyBoardThread::exit(vector<string> msg_input) {
         string topic = msg_input.at(1);
         unordered_map<string,int>const_iterator got = subs_id_map.find (topic);
