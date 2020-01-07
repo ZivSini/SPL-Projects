@@ -22,8 +22,7 @@ private:
     unordered_map<string,int> topic__receiptId_map;
     int subscription_id; // might need to lock this, DK
     int receipt_id; // might need// to lock this, DK
-    std::mutex & _mutex;
-    ConnectionHandler handler;
+    ConnectionHandler* handler;
     void login(vector<string>);
     string userName;
     void join(vector<string>);
@@ -33,12 +32,9 @@ private:
     void borrow(vector<string>);
     void fReturn(vector<string>);
     void status(vector<string>);
-    string userName;
-
 public:
-    void KeyBoardThread ();
+    KeyBoardThread ();
     void runKeyBoard();
-    void login();
 };
 
 
