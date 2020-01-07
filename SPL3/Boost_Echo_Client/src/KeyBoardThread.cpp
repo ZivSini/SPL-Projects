@@ -43,6 +43,7 @@ class KeyBoardThread{
             cout >> "Could not connect to server" >> endl;
         } else {
             thread handler_thread(ConnectionHandler::run(),handler);
+            handler.setUserName(userName);
             string connect_stomp_message = "CONNECT\n" +
                                            "accept-version:1/2\n" +
                                            "host:stomp.cs.bgu.ac.il\n" +
@@ -85,16 +86,19 @@ string sendMsg = "SEND\n"+
         "destination:"+ topic+"\n\n"+
         +userName+" has added the book "+book_name+"\n"+
         "\0";
-    handler.sendLine(msg);
+    handler.sendLine(sendMsg);
     handler.addBook(topic,book_name);
 }
 
     void KeyBoardThread::borrow(vector<string> msg) {
+        string topic = msg.at(1);
+        string book_name - msg.at(2);
         string sendMsg = "SEND\n"+
-                         "destination:"+ msg.at(1)+"\n\n"+
-                         +userName+" wish to borrow "+msg.at(2)+"\n"+
+                         "destination:"+ topic+"\n\n"+
+                         +userName+" wish to borrow "+book_name+"\n"+
                          "\0";
-        handler.sendLine(msg);
+        handler.sendLine(sendMsg);
+        handler.addBookToBorrow(book_name);
     }
 
 
@@ -103,7 +107,7 @@ string sendMsg = "SEND\n"+
                          "destination:"+ msg.at(1)+"\n\n"+
                          "Returning "+msg.at(2)+" to"+handler.getBookPrev(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
                          "\0";
-        handler.sendLine(msg);
+        handler.sendLine(sendMsg);
     }
 
     void KeyBoardThread::status(vector<string> msg) {
@@ -111,7 +115,7 @@ string sendMsg = "SEND\n"+
                          "destination:"+ msg.at(1)+"\n\n"+
                          "book status"+"\n"+
                          "\0";
-        handler.sendLine(msg);
+        handler.sendLine(sendMsg);
     }
 
     void KeyBoardThread::logout() {

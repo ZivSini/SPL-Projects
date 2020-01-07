@@ -22,7 +22,8 @@ private:
     unordered_map<string,string> books_prevOwner_map;
     bool connected;
     unordered_map<string,list<string>*> topic_books_map;
-
+    string userName;
+    list<string> booksToBorrow;
  
 public:
     ConnectionHandler(std::string host, short port);
@@ -65,6 +66,11 @@ public:
     string getBookPrevOwner(string);
     void addBook(string topic,string book_name);
 
+    void setUserName(string name);
+
+    void addBookToBorrow(string bookName);
+
+    void removeBookToBorrow(string bookName);
 }; //class ConnectionHandler
  
 #endif
