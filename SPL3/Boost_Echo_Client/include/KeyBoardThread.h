@@ -18,9 +18,10 @@ using namespace std;
 
 class KeyBoardThread {
 private:
-    unordered_map<string,int> subs_id_map;
+    unordered_map<string,int> topic_id_map;
+    unordered_map<string,int> topic__receiptId_map;
     int subscription_id; // might need to lock this, DK
-    int disconnect_id; // might need to lock this, DK
+    int receipt_id; // might need// to lock this, DK
     std::mutex & _mutex;
     ConnectionHandler handler;
     void login(vector<string>);

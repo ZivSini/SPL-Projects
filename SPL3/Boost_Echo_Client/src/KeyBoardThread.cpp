@@ -43,6 +43,7 @@ class KeyBoardThread{
             cout >> "Could not connect to server" >> endl;
         } else {
             thread handler_thread(ConnectionHandler::run(),handler);
+            handler.setUserName(userName);
             string connect_stomp_message = "CONNECT\n" +
                                            "accept-version:1/2\n" +
                                            "host:stomp.cs.bgu.ac.il\n" +
@@ -57,25 +58,35 @@ class KeyBoardThread{
         string topic = msg_input.at(1);
         string subscribe_stomp_message = "SUBSCRIBE\n" +
                                          "destination:"+ topic+"\n" +
-                                         "id:"+subscription_id+"\n\n" +
+                                         "id:"+subscription_id+"\n" +
+                                         "receipt:"+receipt_id+"\n\n"+
                                          "\0";
         handler.sendLine(subscribe_stomp_message);
-        this.subs_id_map.insert(topic,subscription_id);
-        this.subs_id_map.insert[topic]=subs_id_map;
+        this.topic_id_map.insert[topic]=subscription_id;
+        this->topic__receiptId_map.insert[topic]=receipt_id;
+        handler.add_to_topic_rcpt_map(topic,receipt_id);
+        handler.add_to_rcptId_cmmnd_map(receipt_id,"sub");
         subscription_id++;
+        receipt_id++;
     }
 
 
 
     void KeyBoardThread::exit(vector<string> msg_input) {
         string topic = msg_input.at(1);
-        unordered_map<string,int>const_iterator subs_id = subs_id_map.find (topic);
-        int id = subs_id.second;
+        unordered_map<string,int>::const_iterator iter = topic_id_map.find(topic);
+        int id = iter.second;
+        unordered_map<string,int>::const_iterator it= topic__receiptId_map.find(topic);
+        int receiptId = it.second;
         string unsubscribe_stomp_message = "UNSUBSCRIBE\n" +
-                                           "id:" + id + "\n\n" +
+                                           "id:" + id + "\n" +
+                                           "receipt-id:"+receiptId+"\n\n"+
                                            "\0";
         handler.sendLine(unsubscribe_stomp_message);
-        this.subs_id_map.erase(topic);
+        handler.remove_from_rcptId_cmmnd_map(receiptId);
+        handler.add_to_rcptId_cmmnd_map(receiptId,"unsub");
+        this.topic_id_map.erase(topic);
+        this->topic__receiptId_map.erase(topic);
     }
 
 void KeyBoardThread::add(vector<string> msg) {
@@ -85,16 +96,19 @@ string sendMsg = "SEND\n"+
         "destination:"+ topic+"\n\n"+
         +userName+" has added the book "+book_name+"\n"+
         "\0";
-    handler.sendLine(msg);
+    handler.sendLine(sendMsg);
     handler.addBook(topic,book_name);
 }
 
     void KeyBoardThread::borrow(vector<string> msg) {
+        string topic = msg.at(1);
+        string book_name - msg.at(2);
         string sendMsg = "SEND\n"+
-                         "destination:"+ msg.at(1)+"\n\n"+
-                         +userName+" wish to borrow "+msg.at(2)+"\n"+
+                         "destination:"+ topic+"\n\n"+
+                         +userName+" wish to borrow "+book_name+"\n"+
                          "\0";
-        handler.sendLine(msg);
+        handler.sendLine(sendMsg);
+        handler.addBookToBorrow(book_name);
     }
 
 
@@ -103,7 +117,7 @@ string sendMsg = "SEND\n"+
                          "destination:"+ msg.at(1)+"\n\n"+
                          "Returning "+msg.at(2)+" to"+handler.getBookPrev(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
                          "\0";
-        handler.sendLine(msg);
+        handler.sendLine(sendMsg);
     }
 
     void KeyBoardThread::status(vector<string> msg) {
@@ -111,15 +125,16 @@ string sendMsg = "SEND\n"+
                          "destination:"+ msg.at(1)+"\n\n"+
                          "book status"+"\n"+
                          "\0";
-        handler.sendLine(msg);
+        handler.sendLine(sendMsg);
     }
 
     void KeyBoardThread::logout() {
-        string disconnect_stomp_message = "UNSUBSCRIBE\n" +
-                                          "id:" + disconnect_id + "\n\n" +
+        string disconnect_stomp_message = "DISCONNECT\n" +
+                                          "receipt-id:" + receipt_id + "\n\n" +
                                           "\0";
+        handler.add_to_rcptId_cmmnd_map(receipt_id,"discon");
         handler.sendLine(disconnect_stomp_message);
-        this->disconnect_id++;
+        this->receipt_id++;
 
 
     }
