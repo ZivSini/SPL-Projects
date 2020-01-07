@@ -26,6 +26,9 @@ private:
     unordered_map<int,string> receiptId_command_map;
 
 
+    string userName;
+    list<string> booksToBorrow;
+
 public:
     ConnectionHandler(std::string host, short port);
     virtual ~ConnectionHandler();
@@ -70,6 +73,11 @@ public:
     void add_to_rcptId_cmmnd_map(int id,string command);
     void remove_from_rcptId_cmmnd_map(int id);
 
+    void setUserName(string name);
+
+    void addBookToBorrow(string bookName);
+
+    void removeBookToBorrow(string bookName);
 }; //class ConnectionHandler
  
 #endif
