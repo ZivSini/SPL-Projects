@@ -17,7 +17,8 @@ class KeyBoardThread{
         cin>> input;
         std::vector<std::string> msg_input ;
         boost::split(msg_input, input, boost::is_any_of(" "));
-        switch (msg_input.at(0)){
+        string first_word = msg_input.at(0);
+        switch (first_word){
             case "login": login();
             case "join": join();
             case "exit": exit();
