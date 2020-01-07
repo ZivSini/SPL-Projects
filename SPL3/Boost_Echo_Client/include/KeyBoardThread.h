@@ -18,7 +18,7 @@ using namespace std;
 
 class KeyBoardThread {
 private:
-    int unordered_map<string,int> subs_id_map;
+    unordered_map<string,int> subs_id_map;
     int subscription_id; // might need to lock this, DK
     int disconnect_id; // might need to lock this, DK
     std::mutex & _mutex;
@@ -35,7 +35,8 @@ private:
     string userName;
 
 public:
-    KeyBoardThread (int id, std::mutex& mutex) : _id(id), _mutex(mutex) {}
+    void KeyBoardThread ();
+    void runKeyBoard();
     void login();
 };
 

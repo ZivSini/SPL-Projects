@@ -5,6 +5,10 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <list>
+#include <unordered_map>
+#include <boost/algorithm/string.hpp>
+
+using namespace std;
 
 
 using boost::asio::ip::tcp;
@@ -15,7 +19,9 @@ private:
     const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_;
-    std::list<std::pair<std::string,std::string>> booksOrigin;
+    unordered_map<string,string> books_prevOwner_map;
+    bool connected;
+    unordered_map<string,list<string>*> topic_books_map;
 
  
 public:
@@ -56,7 +62,8 @@ public:
 
     void send(std::string);
 
-    std::string getBookPrev(std::string):
+    string getBookPrevOwner(string);
+    void addBook(string topic,string book_name);
 
 }; //class ConnectionHandler
  

@@ -17,8 +17,8 @@ class KeyBoardThread{
         cin>> input;
         std::vector<std::string> msg_input ;
         boost::split(msg_input, input, boost::is_any_of(" "));
-        string first_word = msg_input.at(0);
-        switch (first_word){
+        string keyboard_command = msg_input.at(0);
+        switch (keyboard_command){
             case "login":{login(msg_input);}
             case "join": join();
             case "exit": exit();
@@ -48,6 +48,7 @@ class KeyBoardThread{
         if (!handler.connect()) {
             cout >> "Could not connect to server" >> endl;
         } else {
+            thread handler_thread(ConnectionHandler::run(),handler);
             string connect_stomp_message = "CONNECT\n" +
                                            "accept-version:1/2\n" +
                                            "host:stomp.cs.bgu.ac.il\n" +
@@ -74,8 +75,8 @@ class KeyBoardThread{
 
     void KeyBoardThread::exit(vector<string> msg_input) {
         string topic = msg_input.at(1);
-        unordered_map<string,int>const_iterator got = subs_id_map.find (topic);
-        int id = got.second;
+        unordered_map<string,int>const_iterator subs_id = subs_id_map.find (topic);
+        int id = subs_id.second;
         string unsubscribe_stomp_message = "UNSUBSCRIBE\n" +
                                            "id:" + id + "\n\n" +
                                            "\0";
@@ -84,11 +85,14 @@ class KeyBoardThread{
     }
 
 void KeyBoardThread::add(vector<string> msg) {
+        string topic = msg.at(1);
+        string book_name - msg.at(2);
 string sendMsg = "SEND\n"+
-        "destination:"+ msg.at(1)+"\n\n"+
-        +userName+" has added the book "+msg.at(2)+"\n"+
+        "destination:"+ topic+"\n\n"+
+        +userName+" has added the book "+book_name+"\n"+
         "\0";
     handler.send(msg);
+    handler.addBook(topic,book_name);
 }
 
 void KeyBoardThread::borrow(vector<string> msg) {
@@ -103,7 +107,7 @@ void KeyBoardThread::borrow(vector<string> msg) {
 void KeyBoardThread::fReturn(vector<string> msg) {
     string sendMsg = "SEND\n"+
                      "destination:"+ msg.at(1)+"\n\n"+
-                     "Returning "+msg.at(2)+" to"+handler.getBookPrev(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
+                     "Returning "+msg.at(2)+" to"+handler.getBookPrevOwner(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
                      "\0";
     handler.send(msg);
 }
@@ -115,11 +119,6 @@ void KeyBoardThread::status(vector<string> msg) {
                      "\0";
     handler.send(msg);
 }
-
-};
-
-
-
 
     void KeyBoardThread::logout() {
         string disconnect_stomp_message = "UNSUBSCRIBE\n" +

@@ -1,5 +1,6 @@
-#include <connectionHandler.h>
 #include "../include/connectionHandler.h"
+#include <boost/algorithm/string.hpp>
+
 
 
 using boost::asio::ip::tcp;
@@ -8,7 +9,7 @@ using std::cin;
 using std::cout;
 using std::cerr;
 using std::endl;
-using std::string;
+using namespace std;
  
 ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){}
     
@@ -25,6 +26,8 @@ bool ConnectionHandler::connect() {
 		socket_.connect(endpoint, error);
 		if (error)
 			throw boost::system::system_error(error);
+        else
+            connected=true;
     }
     catch (std::exception& e) {
         std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
@@ -105,6 +108,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
 void ConnectionHandler::close() {
     try{
         socket_.close();
+        connected=false;
     } catch (...) {
         std::cout << "closing failed: connection already closed" << std::endl;
     }
@@ -114,24 +118,53 @@ void ConnectionHandler::close() {
 
 void ConnectionHandler::run() {
 
+
+    while (connected){
+        string answer_from_server;
+        if (!getLine(answer_from_server)) {
+            cout << "Disconnected. Exiting...\n" << endl;
+            break;
+        }else{
+            std::vector<std::string> answer_vector ;
+            boost::split(answer_vector, answer_from_server, boost::is_any_of(" "));
+            string stomp_command = answer_vector.at(0);
+            switch (stomp_command){
+                case "CONNECTED":
+                case "MESSAGE":
+                case "RECEIPT":
+                case "ERROR":
+
+            }
+        }
+
+
+    }
+
 }
 
 void ConnectionHandler::send(string msg) {
 
 }
 
-string ConnectionHandler::getBookPrev(string bookName) {
-    string prevOwner;
-    for(std::pair<string,string> p:booksOrigin)
-    {
-        if (p.first==bookName) {
-            prevOwner = p.second;
-            booksOrigin.remove(p);
-            return prevOwner;
-        }
+string ConnectionHandler::getBookPrevOwner(string book_name) {
+    unordered_map<string,string>::const_iterator it = books_prevOwner_map.find(book_name);
+    string prev_owner = it->second;
+    books_prevOwner_map.erase(book_name);
+    return prev_owner;
+
+}
+
+void ConnectionHandler::addBook(string topic, string book_name) {
+    unordered_map<string,list<string>*>::const_iterator it = topic_books_map.find(topic);
+    if (it==topic_books_map.end()) {
+        list<string> *book_list = new list<string>;
+        book_list->push_back(book_name);
+        topic_books_map[topic] = book_list;
+    }else{
+        it->second->push_back(book_name);
+
     }
 
 
-    return prevOwner;
-
 }
+
