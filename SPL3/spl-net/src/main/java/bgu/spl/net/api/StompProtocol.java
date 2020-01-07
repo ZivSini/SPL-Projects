@@ -96,6 +96,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex);
                 connections.getTopics_subsMap().get(topic).add(connectionId);
+                // seccond line MUST be receipt id
                 msgToReply ="RECEIPT \n" +
                         "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";
@@ -109,8 +110,8 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 String topic = this.topics_IdsMap.get(subscriptionId);
                 colonIndex = stringMsg[2].indexOf(":");
                 String receiptId = stringMsg[2].substring(colonIndex);
+                // seccond line MUST be receipt id
                 msgToReply ="RECEIPT \n" +
-                        "id:"+subscriptionId+"\n"+
                         "receipt:"+receiptId+"\n\n"+
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
@@ -141,6 +142,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 }
                 int colonIndex = stringMsg[1].indexOf(":");
                 String receiptId = stringMsg[1].substring(colonIndex);
+                // seccond line MUST be receipt id
                 msgToReply="RECIEPT\n" +
                         "receipt-id:"+receiptId+"\n\n"
                         +"\u0000";
