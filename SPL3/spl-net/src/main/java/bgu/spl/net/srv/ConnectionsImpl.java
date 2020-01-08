@@ -1,6 +1,7 @@
 package bgu.spl.net.srv;
 
 import java.io.IOException;
+import java.security.KeyPair;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,12 +11,14 @@ public class ConnectionsImpl <T>implements Connections<T> {
     private Map<Integer, ConnectionHandler> clients_ConsHandMap;
     private Map<Integer,Client> clientsMap;
     private Map<String, List<Integer>> topics_subsMap;
+    private Map<Integer,Map<String,Integer>> connId_topic_subId_map;
     private static ConnectionsImpl single_instance=null;
 
     private ConnectionsImpl(){
         clients_ConsHandMap=new ConcurrentHashMap<>();
         clientsMap = new ConcurrentHashMap<>();
         topics_subsMap = new ConcurrentHashMap<>();
+        connId_topic_subId_map = new ConcurrentHashMap<>();
     }
 
     public static ConnectionsImpl getInstance(){
@@ -67,4 +70,10 @@ public class ConnectionsImpl <T>implements Connections<T> {
     public Map<String, List<Integer>> getTopics_subsMap() {
         return topics_subsMap;
     }
+
+    public Map<Integer, Map<String, Integer>> getConnId_topic_subId_map() {
+        return connId_topic_subId_map;
+    }
+
 }
+

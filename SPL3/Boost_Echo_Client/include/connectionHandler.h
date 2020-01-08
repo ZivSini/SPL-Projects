@@ -4,23 +4,38 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <list>
+#include <unordered_map>
+#include <boost/algorithm/string.hpp>
+
+using namespace std;
+
 
 using boost::asio::ip::tcp;
 
 class ConnectionHandler {
 private:
 	const std::string host_;
-	const short port_;
+    const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
-	tcp::socket socket_; 
- 
+	tcp::socket socket_;
+    unordered_map<string,string> books_prevOwner_map;
+    bool connected;
+    unordered_map<string,list<string>*> topic_books_map;
+    unordered_map<int,string> receiptId_topic_map;
+    unordered_map<int,string> receiptId_command_map;
+
+
+    string userName;
+    list<string> booksToBorrow;
+
 public:
     ConnectionHandler(std::string host, short port);
     virtual ~ConnectionHandler();
  
     // Connect to the remote machine
     bool connect();
- 
+
     // Read a fixed number of bytes from the server - blocking.
     // Returns false in case the connection is closed before bytesToRead bytes can be read.
     bool getBytes(char bytes[], unsigned int bytesToRead);
@@ -47,7 +62,22 @@ public:
 	
     // Close down the connection properly.
     void close();
- 
+
+    void run();
+
+    void send(std::string);
+
+    string getBookPrevOwner(string);
+    void addBook(string topic,string book_name);
+    void add_to_topic_rcpt_map(string topic, int receipt_id);
+    void add_to_rcptId_cmmnd_map(int id,string command);
+    void remove_from_rcptId_cmmnd_map(int id);
+
+    void setUserName(string name);
+
+    void addBookToBorrow(string bookName);
+
+    void removeBookToBorrow(string bookName);
 }; //class ConnectionHandler
  
 #endif
