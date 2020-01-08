@@ -99,6 +99,11 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 //                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
+                if(!connections.getConnId_topic_subId_map().containsKey(connectionId)){ // if the connId doesn't have a topic he is registered to yet
+                    Map<String,Integer> topics_subsId_map = new ConcurrentHashMap<>();
+                    connections.getConnId_topic_subId_map().put(connectionId,topics_subsId_map); // initialize it
+                }
+                connections.getConnId_topic_subId_map().get(connectionId).put(topic,subscriptionId); // put the topic and his subsId to the connId map in connections
                 this.subsId_topics_Map.put(subscriptionId,topic);
                 /** need to add the subscription id of this user to the connectionImpl map that hold all of the subscrip' id of all the client so we can add this id to the message */
            //     connections.getConnId_topic_subId_map().put()
@@ -143,10 +148,11 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 int colonIndex = topic.indexOf(":");
                 topic = topic.substring(colonIndex+1);
                 msgReply.setTopic(topic);
+                Integer subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
                 String sendType = stringMsg[2];
 
                 msgToReply="MESSAGE\n" +
-                        "subscription:"+this.subsId_topics_Map.get(topic).toString()+"\n"+
+                        "subscription:"+subsctipId.toString()+"\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
