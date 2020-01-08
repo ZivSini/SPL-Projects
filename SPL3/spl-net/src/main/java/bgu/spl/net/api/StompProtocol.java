@@ -143,10 +143,11 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 int colonIndex = topic.indexOf(":");
                 topic = topic.substring(colonIndex+1);
                 msgReply.setTopic(topic);
+                Integer subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
                 String sendType = stringMsg[2];
 
                 msgToReply="MESSAGE\n" +
-                        "subscription:"+this.subsId_topics_Map.get(topic).toString()+"\n"+
+                        "subscription:"+subsctipId.toString()+"\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
