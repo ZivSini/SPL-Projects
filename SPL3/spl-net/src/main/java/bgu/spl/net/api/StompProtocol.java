@@ -128,8 +128,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 int  colonIndex = stringMsg[1].indexOf(":");
                 Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex+1));
                 String topic = subsId_topics_Map.get(subscriptionId);
-                connections.getTopics_subsMap().get(topic).remove(connectionId); // removes the connectionId from the connection's topic_subs_map which hold all the ids that is registered to that topic.
-                connections.getConnId_topic_subId_map().get(connectionId).remove(topic); // removes this topic from the map that hold all this connectionId topic and thier subId numbers.
+                connections.getConnId_topic_subId_map().get(connectionId).remove(topic); // removes this topic from the map that hold all this connectionId topic and their subId numbers.
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer receiptId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
                 /** seccond line MUST be receipt id */
@@ -165,13 +164,15 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             case ("DISCONNECT"):{
                 for(String topic: this.connections.getTopics_subsMap().keySet())
                 {
-                    this.connections.getTopics_subsMap().get(topic).remove(connectionId);
-                    //TODO: change loggedIn for this client to false so we can relog him once again with the same name and password
+                    if (connections.getTopics_subsMap().get(topic).contains(connectionId)) {
+                        this.connections.getTopics_subsMap().get(topic).remove(connectionId);
+                    }
+                    connections.getClientsMap().get(connectionId).setLoggedIn(false);   // change loggedIn for this client to false so we can relog him once again with the same name and password
                 }
                 int colonIndex = stringMsg[1].indexOf(":");
-                String receiptId = stringMsg[1].substring(colonIndex);
+                String receiptId = stringMsg[1].substring(colonIndex+1);
                 /** seccond line MUST be receipt id */
-                msgToReply="RECIEPT\n" +
+                msgToReply="RECEIPT\n" +
                         "receipt-id:"+receiptId+"\n\n"
                         +"\u0000";
                 connections.send(connectionId, (T) msgToReply);
