@@ -133,13 +133,13 @@ void ConnectionHandler::run() {
             }
             else if(stomp_command=="MESSAGE") {
                 string msg_body = answer_vector.at(5);
-                size_t pos = msg_body.find("borrow");
-                string book_name = msg_body.substr(pos + 7, msg_body.size() );
                 string topic = answer_vector.at(3);
                 int posOfColon = topic.find(":");
                 topic = topic.substr(posOfColon+1);
                 if (msg_body.find("borrow") != -1) {
                     unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
+                    size_t pos = msg_body.find("borrow");
+                    string book_name = msg_body.substr(pos + 7, msg_body.size() );
                     if (iter != topic_books_map.end()) {
                         list<string>* tmpList = iter->second;
 //                            list<basic_string<char>> *p = std::find(tmpList, tmpList + tmpList->size(), book_name);
@@ -158,8 +158,9 @@ void ConnectionHandler::run() {
                     }
                 }
                 if (msg_body.find("has") != -1) {
-                    size_t pos = msg_body.find("has");
-                    string userHasBook = msg_body.substr(pos + 4, msg_body.size() - 1);
+                    size_t has_pos = msg_body.find("has");
+                    string book_name = msg_body.substr(has_pos + 4, msg_body.size() );
+                    string userHasBook = msg_body.substr(0,has_pos-1 );
                     for (string s:booksToBorrow) {
                         if (s == book_name) {
                             booksToBorrow.remove(book_name);
@@ -178,6 +179,7 @@ void ConnectionHandler::run() {
                 if (msg_body.find("Taking") != -1) {
                     size_t pos = msg_body.find("from");
                     string user = msg_body.substr(pos + 5, msg_body.size() );
+                    string book_name = msg_body.substr(7, pos-1 );
                     if (user == this->userName) {
                         topic_books_map.at(topic)->remove(book_name);
                     }
@@ -185,6 +187,7 @@ void ConnectionHandler::run() {
                 }
                 if (msg_body.find("Returning") != -1) {
                     size_t pos = msg_body.find("to");
+                    string book_name = msg_body.substr(10, pos-1 );
                     string user = msg_body.substr(pos + 3, msg_body.size() );
                     if (user == this->userName) {
                         topic_books_map.at(topic)->push_back(book_name);

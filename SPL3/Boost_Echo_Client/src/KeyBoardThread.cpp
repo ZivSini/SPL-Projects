@@ -116,7 +116,6 @@ void KeyBoardThread::join(vector<string> msg_input){
 }
 
 
-
 void KeyBoardThread::exit(vector<string> msg_input) {
     string topic = msg_input.at(1);
     unordered_map<string,int>::const_iterator iter = topic_id_map.find(topic);
@@ -138,7 +137,7 @@ void KeyBoardThread::add(vector<string> msg) {
     string topic = msg.at(1);
     string book_name;
     for (int i=2; i<msg.size();i++){
-        book_name+=msg.at(i);
+        book_name+=msg.at(i)+" ";
     }
     string sendMsg = "SEND\n"
                      "destination:"+ topic+"\n\n"+
@@ -158,7 +157,6 @@ void KeyBoardThread::borrow(vector<string> msg) {
     handler->sendFrameAscii(sendMsg,'\0');
     handler->addBookToBorrow(book_name);
 }
-
 
 void KeyBoardThread::fReturn(vector<string> msg) {
     string sendMsg = "SEND\n"
