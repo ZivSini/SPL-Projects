@@ -22,6 +22,7 @@ public class ObjectEncoderDecoder implements MessageEncoderDecoder<Serializable>
             lengthBuffer.put(nextByte);
             if (!lengthBuffer.hasRemaining()) { //we read 4 bytes and therefore can take the length
                 lengthBuffer.flip();
+                int bufLen = lengthBuffer.getInt();
                 objectBytes = new byte[lengthBuffer.getInt()];
                 objectBytesIndex = 0;
                 lengthBuffer.clear();
