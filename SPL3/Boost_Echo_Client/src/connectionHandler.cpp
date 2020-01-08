@@ -128,165 +128,169 @@ void ConnectionHandler::run() {
             std::vector<std::string> answer_vector;
             boost::split(answer_vector, answer_from_server, boost::is_any_of(" "));
             string stomp_command = answer_vector.at(0);
-                if(stomp_command== "CONNECTED") {
-                    cout << "Login successful";
-                }
-                 else if(stomp_command=="MESSAGE") {
-                    string msg_body = answer_vector.at(5);
-                    size_t pos = msg_body.find("borrow");
-                    string book_name = msg_body.substr(pos + 7, msg_body.size() - 1);
-                    string topic = answer_vector.at(3);
-                    int posOfColon = topic.find(":");
-                    topic = topic.substr(posOfColon);
-                    if (msg_body.find("borrow") != -1) {
-                        unordered_map<string, list<string> *>::const_iterator it = topic_books_map.find(topic);
-                        if (it != topic_books_map.end()) {
-                            list<basic_string<char>> *p = std::find(it->second, it->second + it->second->size(),book_name);
-                            if (p != it->second + it->second->size()) {
+            if(stomp_command== "CONNECTED") {
+                cout << "Login successful";
+            }
+            else if(stomp_command=="MESSAGE") {
+                string msg_body = answer_vector.at(5);
+                size_t pos = msg_body.find("borrow");
+                string book_name = msg_body.substr(pos + 7, msg_body.size() - 1);
+                string topic = answer_vector.at(3);
+                int posOfColon = topic.find(":");
+                topic = topic.substr(posOfColon);
+                if (msg_body.find("borrow") != -1) {
+                    unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
+                    if (iter != topic_books_map.end()) {
+                        list<string>* tmpList = iter->second;
+//                            list<basic_string<char>> *p = std::find(tmpList, tmpList + tmpList->size(), book_name);
+                        for(string s : *tmpList)
+                        {
+                            if(s==book_name)
+                            {
                                 string sendMsg =+ "SEND\n"
-                                                 "destination:" + topic + "\n\n" +
-                                                 userName + " has " + book_name + "\n" +
-                                                 "\0";
+                                                  "destination:" + topic + "\n\n" +
+                                                userName + " has " + book_name + "\n" +
+                                                "\0";
                                 sendLine(sendMsg);
                                 break;
                             }
-
                         }
                     }
-                    if (msg_body.find("has") != -1) {
-                        size_t pos = msg_body.find("has");
-                        string userHasBook = msg_body.substr(pos + 4, msg_body.size() - 1);
-                        for (string s:booksToBorrow) {
-                            if (s == book_name) {
-                                booksToBorrow.remove(book_name);
-                                string sendMsg = "SEND\n"
-                                                 "destination:" + topic + "\n\n" +
-                                                 "Taking " + book_name + "from " + userHasBook + "\n" +
-                                                 "\0";
-                                sendLine(sendMsg);
-                                topic_books_map.at(topic)->push_back(book_name);
-                                books_prevOwner_map[book_name] = userHasBook;
-                                break;
-                            }
-                        }
-
-                    }
-                    if (msg_body.find("Taking") != -1) {
-                        size_t pos = msg_body.find("from");
-                        string user = msg_body.substr(pos + 5, msg_body.size() - 1);
-                        if (user == this->userName) {
-                            topic_books_map.at(topic)->remove(book_name);
-                        }
-                        break;
-                    }
-                    if (msg_body.find("Returning") != -1) {
-                        size_t pos = msg_body.find("to");
-                        string user = msg_body.substr(pos + 3, msg_body.size() - 1);
-                        if (user == this->userName) {
+                }
+                if (msg_body.find("has") != -1) {
+                    size_t pos = msg_body.find("has");
+                    string userHasBook = msg_body.substr(pos + 4, msg_body.size() - 1);
+                    for (string s:booksToBorrow) {
+                        if (s == book_name) {
+                            booksToBorrow.remove(book_name);
+                            string sendMsg = "SEND\n"
+                                             "destination:" + topic + "\n\n" +
+                                             "Taking " + book_name + "from " + userHasBook + "\n" +
+                                             "\0";
+                            sendLine(sendMsg);
                             topic_books_map.at(topic)->push_back(book_name);
+                            books_prevOwner_map[book_name] = userHasBook;
+                            break;
                         }
-                        break;
-                    }
-                    if (msg_body.find("book status") != -1) {
-                        string booksList;
-                        list<string> *booksInTheTopic = topic_books_map.at(topic);
-                        for (string s: *booksInTheTopic) {
-                            booksList += s + ",";
-                        }
-                        booksList = booksList.substr(0, booksList.size() - 2);
-                        string sendMsg = "SEND\n"
-                                         "destination:" + topic + "\n\n" +
-                                         booksList + "\n" +
-                                         "\0";
-                        sendLine(sendMsg);
-                        break;
                     }
 
                 }
-                else if(stomp_command== "RECEIPT") {
-                    string full_receipt_id = answer_vector.at(1);
-                    int indexColon = full_receipt_id.find(":");
-                    int receipt_id = stoi(full_receipt_id.substr(indexColon));
-                    unordered_map<int, string>::const_iterator it = receiptId_command_map.find(receipt_id);
-                    string command = it->second;
-                        if(command== "discon"){} /// something
-                        else if(command=="sub") {
-                            unordered_map<int, string>::const_iterator it = receiptId_topic_map.find(receipt_id);
-                            string topic = it->second;
-                            cout << "Joined club " + topic << endl;
-                        }
-                    else if(command=="unsub"){
-                            unordered_map<int, string>::const_iterator it = receiptId_topic_map.find(receipt_id);
-                            string topic = it->second;
-                            cout << "Exited club " + topic << endl;
-                        }
+                if (msg_body.find("Taking") != -1) {
+                    size_t pos = msg_body.find("from");
+                    string user = msg_body.substr(pos + 5, msg_body.size() - 1);
+                    if (user == this->userName) {
+                        topic_books_map.at(topic)->remove(book_name);
                     }
+                    break;
+                }
+                if (msg_body.find("Returning") != -1) {
+                    size_t pos = msg_body.find("to");
+                    string user = msg_body.substr(pos + 3, msg_body.size() - 1);
+                    if (user == this->userName) {
+                        topic_books_map.at(topic)->push_back(book_name);
+                    }
+                    break;
+                }
+                if (msg_body.find("book status") != -1) {
+                    string booksList;
+                    list<string> *booksInTheTopic = topic_books_map.at(topic);
+                    for (string s: *booksInTheTopic) {
+                        booksList += s + ",";
+                    }
+                    booksList = booksList.substr(0, booksList.size() - 2);
+                    string sendMsg = "SEND\n"
+                                     "destination:" + topic + "\n\n" +
+                                     booksList + "\n" +
+                                     "\0";
+                    sendLine(sendMsg);
+                    break;
+                }
 
-                    else if(stomp_command== "ERROR") {
-                        int indexColon = answer_vector.at(1).find(":");
-                        string error_msg = answer_vector.at(1).substr(indexColon);
-                        cout << error_msg << endl;
-                    }
+            }
+            else if(stomp_command== "RECEIPT") {
+                string full_receipt_id = answer_vector.at(1);
+                int indexColon = full_receipt_id.find(":");
+                int receipt_id = stoi(full_receipt_id.substr(indexColon));
+                unordered_map<int, string>::const_iterator it = receiptId_command_map.find(receipt_id);
+                string command = it->second;
+                if(command== "discon"){} /// something
+                else if(command=="sub") {
+                    unordered_map<int, string>::const_iterator it = receiptId_topic_map.find(receipt_id);
+                    string topic = it->second;
+                    cout << "Joined club " + topic << endl;
+                }
+                else if(command=="unsub"){
+                    unordered_map<int, string>::const_iterator it = receiptId_topic_map.find(receipt_id);
+                    string topic = it->second;
+                    cout << "Exited club " + topic << endl;
                 }
             }
 
-
+            else if(stomp_command== "ERROR") {
+                int indexColon = answer_vector.at(1).find(":");
+                string error_msg = answer_vector.at(1).substr(indexColon);
+                cout << error_msg << endl;
+            }
         }
+    }
+
+
+}
 
 
 
-    void ConnectionHandler::send(string msg) {
+void ConnectionHandler::send(string msg) {
+
+}
+
+string ConnectionHandler::getBookPrevOwner(string book_name) {
+    unordered_map<string, string>::const_iterator it = books_prevOwner_map.find(book_name);
+    string prev_owner = it->second;
+    books_prevOwner_map.erase(book_name);
+    return prev_owner;
+
+}
+
+void ConnectionHandler::addBook(string topic, string book_name) {
+    unordered_map<string, list<string> *>::const_iterator it = topic_books_map.find(topic);
+    if (it == topic_books_map.end()) {
+        list<string> *book_list = new list<string>;
+        book_list->push_back(book_name);
+        topic_books_map[topic] = book_list;
+    } else {
+        it->second->push_back(book_name);
 
     }
 
-    string ConnectionHandler::getBookPrevOwner(string book_name) {
-        unordered_map<string, string>::const_iterator it = books_prevOwner_map.find(book_name);
-        string prev_owner = it->second;
-        books_prevOwner_map.erase(book_name);
-        return prev_owner;
 
-    }
+}
 
-    void ConnectionHandler::addBook(string topic, string book_name) {
-        unordered_map<string, list<string> *>::const_iterator it = topic_books_map.find(topic);
-        if (it == topic_books_map.end()) {
-            list<string> *book_list = new list<string>;
-            book_list->push_back(book_name);
-            topic_books_map[topic] = book_list;
-        } else {
-            it->second->push_back(book_name);
+void ConnectionHandler::add_to_topic_rcpt_map(string topic, int receipt_id) {
+    receiptId_topic_map[receipt_id] = topic;
 
-        }
+}
 
+void ConnectionHandler::add_to_rcptId_cmmnd_map(int id, string command) {
+    receiptId_command_map[id] = command;
 
-    }
+}
 
-    void ConnectionHandler::add_to_topic_rcpt_map(string topic, int receipt_id) {
-        receiptId_topic_map[receipt_id] = topic;
+void ConnectionHandler::remove_from_rcptId_cmmnd_map(int id) {
+    this->receiptId_command_map.erase(id);
 
-    }
+}
 
-    void ConnectionHandler::add_to_rcptId_cmmnd_map(int id, string command) {
-        receiptId_command_map[id] = command;
+void ConnectionHandler::setUserName(string name) {
+    this->userName = name;
 
-    }
+}
 
-    void ConnectionHandler::remove_from_rcptId_cmmnd_map(int id) {
-        this->receiptId_command_map.erase(id);
+void ConnectionHandler::addBookToBorrow(string bookName) {
+    booksToBorrow.push_back(bookName);
+}
 
-    }
-
-    void ConnectionHandler::setUserName(string name) {
-        this->userName = name;
-
-    }
-
-    void ConnectionHandler::addBookToBorrow(string bookName) {
-        booksToBorrow.push_back(bookName);
-    }
-
-    void ConnectionHandler::removeBookToBorrow(string bookName) {
-        booksToBorrow.remove(bookName);
-    }
+void ConnectionHandler::removeBookToBorrow(string bookName) {
+    booksToBorrow.remove(bookName);
+}
 
 
