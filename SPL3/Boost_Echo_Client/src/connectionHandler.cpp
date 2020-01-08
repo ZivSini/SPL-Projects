@@ -137,14 +137,17 @@ void ConnectionHandler::run() {
                 int posOfColon = topic.find(":");
                 topic = topic.substr(posOfColon + 1);
                 if (msg_body.find("borrow") != -1) {
+                    cout<< userName+" got borrow command"<< endl;
                     unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
                     size_t pos = msg_body.find("borrow");
                     string book_name = msg_body.substr(pos + 7, msg_body.size());
                     if (iter != topic_books_map.end()) {
+                        cout<< userName+" got borrow and found topic command - "+ book_name<< endl;
                         list<string> *tmpList = iter->second;
 //                            list<basic_string<char>> *p = std::find(tmpList, tmpList + tmpList->size(), book_name);
                         for (string s : *tmpList) {
                             if (s == book_name) {
+                                cout<< userName+" got borrow and found book in library command"<< endl;
                                 string sendMsg = +"SEND\n"
                                                   "destination:" + topic + "\n\n" +
                                                  userName + " has " + book_name + "\n" +
@@ -164,7 +167,7 @@ void ConnectionHandler::run() {
                             booksToBorrow.remove(book_name);
                             string sendMsg = "SEND\n"
                                              "destination:" + topic + "\n\n" +
-                                             "Taking " + book_name + "from " + userHasBook + "\n" +
+                                             "Taking " + book_name + " from " + userHasBook + "\n" +
                                              "\0";
                             sendFrameAscii(sendMsg,'\0');
                             topic_books_map.at(topic)->push_back(book_name);
@@ -193,6 +196,7 @@ void ConnectionHandler::run() {
                     break;
                 }
                 if (msg_body.find("book status") != -1) {
+                    cout<< userName+" got status command"<< endl;
                     string booksList;
                     if (!topic_books_map.empty()) {
                         if(topic_books_map.find(topic)!=topic_books_map.end()) {

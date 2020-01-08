@@ -139,6 +139,8 @@ void KeyBoardThread::add(vector<string> msg) {
     for (int i=2; i<msg.size();i++){
         book_name+=msg.at(i)+" ";
     }
+    book_name=book_name.substr(0,book_name.size()-1);   // delete the last space after the book name
+
     string sendMsg = "SEND\n"
                      "destination:"+ topic+"\n\n"+
                      userName+" has added the book "+book_name+"\n"+
@@ -149,7 +151,11 @@ void KeyBoardThread::add(vector<string> msg) {
 
 void KeyBoardThread::borrow(vector<string> msg) {
     string topic = msg.at(1);
-    string book_name = msg.at(2);
+    string book_name;
+    for (int i=2; i<msg.size();i++){
+        book_name+=msg.at(i)+" ";
+    }
+    book_name=book_name.substr(0,book_name.size()-1);   // delete the last space after the book name
     string sendMsg = "SEND\n"
                      "destination:"+ topic+"\n\n"+
                      userName+" wish to borrow "+book_name+"\n"+
