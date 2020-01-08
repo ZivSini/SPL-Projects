@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
     private boolean shouldTerminate =false;
-    private Map<String,Integer> topics_IdsMap; /** Hold the subscription id for each topic subscribed to */
+    private Map<Integer,String> subsId_topics_Map; /** Hold the subscription id for each topic subscribed to */
     private Connections<T> connections;
     private int connectionId;
 
@@ -23,7 +23,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
     public void start(int connectionId, Connections<T> connections) {
         this.connectionId=connectionId;
         this.connections=connections;
-        this.topics_IdsMap=new ConcurrentHashMap<>();
+        this.subsId_topics_Map =new ConcurrentHashMap<>();
     }
 
     //TODO: should identify the client by name and not id so we cam reconnect him with diffrente connectionId -
@@ -49,7 +49,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                     // wrong password
                     if (connections.getClientsMap().get(connectionId).getPassword() != clientPW) {
                         /** error message "message: " MUST be in second line */
-                        msgToReply = "ERROR \n" +
+                        msgToReply = "ERROR\n" +
                                 "message: Wrong password\n" +
                                 "\n" + // end of headers - start of body
                                 "MESSAGE\n" +
@@ -60,7 +60,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         // user is already logged in
                     } else if (connections.getClientsMap().get(connectionId).isLoggedIn()) {
                         /** error message "message: " MUST be in second line */
-                        msgToReply = "ERROR \n" +
+                        msgToReply = "ERROR\n" +
                                 "message: User already logged in\n" +
                                 "\n" + // end of headers - start of body
                                 "MESSAGE\n" +
@@ -71,7 +71,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
                     // user exist & not logged in & password is correct
                     else {
-                        msgToReply = "CONNECTED \n" +
+                        msgToReply = "CONNECTED\n" +
                                 version + "\n\n" +
                                 "\u0000";
                     }
@@ -81,7 +81,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 else {
                     Client c = new Client(clientName,clientPW,connectionId);
                     connections.getClientsMap().put(connectionId,c);
-                    msgToReply = "CONNECTED \n" +
+                    msgToReply = "CONNECTED\n" +
                             version + "\n\n" +
                             "\u0000";
                 }
@@ -99,7 +99,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 //                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
                 Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
-                this.topics_IdsMap.put(topic,subscriptionId);
+                this.subsId_topics_Map.put(subscriptionId,topic);
                 /** need to add the subscription id of this user to the connectionImpl map that hold all of the subscrip' id of all the client so we can add this id to the message */
            //     connections.getConnId_topic_subId_map().put()
                 colonIndex = stringMsg[3].indexOf(":");
@@ -110,7 +110,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 }
                 connections.getTopics_subsMap().get(topic).add(connectionId);
                 /** seccond line MUST be receipt id */
-                msgToReply ="RECEIPT \n" +
+                msgToReply ="RECEIPT\n" +
                         "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
@@ -121,17 +121,14 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             case  ("UNSUBSCRIBE"):{
 
                 int  colonIndex = stringMsg[1].indexOf(":");
-                String topic = stringMsg[1].substring(colonIndex+1);
-//                msgReply.setTopic(topic);
-//                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
+                Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex+1));
+                String topic = subsId_topics_Map.get(subscriptionId);
+                connections.getTopics_subsMap().get(topic).remove(connectionId); // removes the connectionId from the connection's topic_subs_map which hold all the ids that is registered to that topic.
+                connections.getConnId_topic_subId_map().get(connectionId).remove(topic); // removes this topic from the map that hold all this connectionId topic and thier subId numbers.
                 colonIndex = stringMsg[2].indexOf(":");
-                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
-                this.topics_IdsMap.put(topic,subscriptionId);
-                colonIndex = stringMsg[3].indexOf(":");
-                String receiptId = stringMsg[3].substring(colonIndex+1);
-                connections.getTopics_subsMap().get(topic).add(connectionId);
+                Integer receiptId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
                 /** seccond line MUST be receipt id */
-                msgToReply ="RECEIPT \n" +
+                msgToReply ="RECEIPT\n" +
                         "receipt:"+receiptId+"\n\n"+
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
@@ -149,7 +146,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 String sendType = stringMsg[2];
 
                 msgToReply="MESSAGE\n" +
-                        "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
+                        "subscription:"+this.subsId_topics_Map.get(topic).toString()+"\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
