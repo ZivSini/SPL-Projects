@@ -162,23 +162,28 @@ void ConnectionHandler::run() {
                     size_t has_pos = msg_body.find("has");
                     string book_name = msg_body.substr(has_pos + 4, msg_body.size());
                     string userHasBook = msg_body.substr(0, has_pos - 1);
+                    bool found_book=false;
                     for (string s:booksToBorrow) {
-                        if (s == book_name) {
-                            booksToBorrow.remove(book_name);
-                            string sendMsg = "SEND\n"
-                                             "destination:" + topic + "\n\n" +
-                                             "Taking " + book_name + " from " + userHasBook + "\n" +
-                                             "\0";
-                            sendFrameAscii(sendMsg,'\0');
-                            if(topic_books_map.find(topic)==topic_books_map.end()){
-                                list<string> *book_list = new list<string>;
-                                topic_books_map[topic]=book_list;
-                            }
-                            topic_books_map.at(topic)->push_back(book_name);
-                            books_prevOwner_map[book_name] = userHasBook;
+                        if (!found_book) {
+                            if (s == book_name) {
+                                found_book = true;
+                                string sendMsg = "SEND\n"
+                                                 "destination:" + topic + "\n\n" +
+                                                 "Taking " + book_name + " from " + userHasBook + "\n" +
+                                                 "\0";
+                                sendFrameAscii(sendMsg, '\0');
+                                addBook(topic, book_name);
+//                            if(topic_books_map.find(topic)==topic_books_map.end()){
+//                                list<string> *book_list = new list<string>;
+//                                topic_books_map[topic]=book_list;
+//                            }
+//                            topic_books_map.at(topic)->push_back(book_name);
+                                books_prevOwner_map[book_name] = userHasBook;
 //                            break;
+                            }
                         }
                     }
+                    booksToBorrow.remove(book_name);
 
                 }
                 else if (msg_body.find("Taking") != -1) {
