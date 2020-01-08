@@ -117,11 +117,11 @@ void ConnectionHandler::close() {
 }
 
 void ConnectionHandler::run() {
-
+    cout<<"HANDLER: RUN STARTED"<<endl;
 
     while (connected) {
         string answer_from_server;
-        if (!getLine(answer_from_server)) {
+        if (!getFrameAscii(answer_from_server,'\0')) {
             cout << "Disconnected. Exiting...\n" << endl;
             break;
         } else {
@@ -129,7 +129,7 @@ void ConnectionHandler::run() {
             boost::split(answer_vector, answer_from_server, boost::is_any_of(" "));
             string stomp_command = answer_vector.at(0);
             if(stomp_command== "CONNECTED") {
-                cout << "Login successful";
+                cout << "Login successful\n";
             }
             else if(stomp_command=="MESSAGE") {
                 string msg_body = answer_vector.at(5);
@@ -137,7 +137,7 @@ void ConnectionHandler::run() {
                 string book_name = msg_body.substr(pos + 7, msg_body.size() - 1);
                 string topic = answer_vector.at(3);
                 int posOfColon = topic.find(":");
-                topic = topic.substr(posOfColon);
+                topic = topic.substr(posOfColon+1);
                 if (msg_body.find("borrow") != -1) {
                     unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
                     if (iter != topic_books_map.end()) {
@@ -210,7 +210,7 @@ void ConnectionHandler::run() {
             else if(stomp_command== "RECEIPT") {
                 string full_receipt_id = answer_vector.at(1);
                 int indexColon = full_receipt_id.find(":");
-                int receipt_id = stoi(full_receipt_id.substr(indexColon));
+                int receipt_id = stoi(full_receipt_id.substr(indexColon+1));
                 unordered_map<int, string>::const_iterator it = receiptId_command_map.find(receipt_id);
                 string command = it->second;
                 if(command== "discon"){} /// something
@@ -228,7 +228,7 @@ void ConnectionHandler::run() {
 
             else if(stomp_command== "ERROR") {
                 int indexColon = answer_vector.at(1).find(":");
-                string error_msg = answer_vector.at(1).substr(indexColon);
+                string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
             }
         }

@@ -32,6 +32,7 @@ private:
     void borrow(vector<string>);
     void fReturn(vector<string>);
     void status(vector<string>);
+    bool terminated;
 public:
     KeyBoardThread ();
     void runKeyBoard();
