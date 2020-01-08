@@ -7,12 +7,15 @@ import bgu.spl.net.srv.ReplyMessage;
 
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
     private boolean shouldTerminate =false;
-    private Map<Integer,String> topics_IdsMap; /** Hold the subscription id for each topic subscribed to */
+    private Map<String,Integer> topics_IdsMap; /** Hold the subscription id for each topic subscribed to */
     private Connections<T> connections;
     private int connectionId;
 
@@ -20,9 +23,11 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
     public void start(int connectionId, Connections<T> connections) {
         this.connectionId=connectionId;
         this.connections=connections;
+        this.topics_IdsMap=new ConcurrentHashMap<>();
     }
 
-
+    //TODO: should identify the client by name and not id so we cam reconnect him with diffrente connectionId -
+    // deal in line 34-end
     @Override
     public T process(T msg) throws IOException {
         String[] stringMsg=((String) msg).split("\n");
@@ -81,11 +86,11 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                             "\u0000";
                 }
 
-                        msgReply.setMsg(msgToReply);
+                msgReply.setMsg(msgToReply);
                 connections.send(connectionId,(T)msgToReply);
 
 
-
+                break;
             }
             case  ("SUBSCRIBE"):{
                 int  colonIndex = stringMsg[1].indexOf(":");
@@ -93,12 +98,16 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 //                msgReply.setTopic(topic);
 //                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
-                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex));
-                this.topics_IdsMap.put(subscriptionId,topic);
+                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
+                this.topics_IdsMap.put(topic,subscriptionId);
                 /** need to add the subscription id of this user to the connectionImpl map that hold all of the subscrip' id of all the client so we can add this id to the message */
            //     connections.getConnId_topic_subId_map().put()
                 colonIndex = stringMsg[3].indexOf(":");
-                String receiptId = stringMsg[3].substring(colonIndex);
+                String receiptId = stringMsg[3].substring(colonIndex+1);
+                if (!connections.getTopics_subsMap().containsKey(topic)){
+                    List<Integer> conn_id_list = new LinkedList<>();
+                    connections.getTopics_subsMap().put(topic,conn_id_list);
+                }
                 connections.getTopics_subsMap().get(topic).add(connectionId);
                 /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT \n" +
@@ -106,14 +115,21 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
                 connections.send(connectionId, (T) msgToReply);
+                break;
 
             }
             case  ("UNSUBSCRIBE"):{
-                int colonIndex = stringMsg[1].indexOf(":");
-                Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex));
-                String topic = this.topics_IdsMap.get(subscriptionId);
+
+                int  colonIndex = stringMsg[1].indexOf(":");
+                String topic = stringMsg[1].substring(colonIndex+1);
+//                msgReply.setTopic(topic);
+//                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
                 colonIndex = stringMsg[2].indexOf(":");
-                String receiptId = stringMsg[2].substring(colonIndex);
+                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
+                this.topics_IdsMap.put(topic,subscriptionId);
+                colonIndex = stringMsg[3].indexOf(":");
+                String receiptId = stringMsg[3].substring(colonIndex+1);
+                connections.getTopics_subsMap().get(topic).add(connectionId);
                 /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT \n" +
                         "receipt:"+receiptId+"\n\n"+
@@ -123,14 +139,17 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 this.connections.getTopics_subsMap().get(topic).remove(connectionId);/** unsubscribe from the topic */
 
                 connections.send(connectionId, (T) msgToReply);
+                break;
             }
             case  ("SEND"):{
                 String topic = stringMsg[1];
+                int colonIndex = topic.indexOf(":");
+                topic = topic.substring(colonIndex+1);
                 msgReply.setTopic(topic);
                 String sendType = stringMsg[2];
 
                 msgToReply="MESSAGE\n" +
-                        "subscription:"+this.topics_IdsMap.get(topic)+"\n"+
+                        "subscription:"+this.topics_IdsMap.get(topic).toString()+"\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
@@ -138,11 +157,13 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
                 msgReply.setMsg(msgToReply);
                 connections.send(msgReply.getTopic(), (T) msgReply.getMsg());
+                break;
             }
             case ("DISCONNECT"):{
                 for(String topic: this.connections.getTopics_subsMap().keySet())
                 {
                     this.connections.getTopics_subsMap().get(topic).remove(connectionId);
+                    //TODO: change loggedIn for this client to false so we can relog him once again with the same name and password
                 }
                 int colonIndex = stringMsg[1].indexOf(":");
                 String receiptId = stringMsg[1].substring(colonIndex);
@@ -153,6 +174,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 connections.send(connectionId, (T) msgToReply);
 
             }
+
 
 
             break;
