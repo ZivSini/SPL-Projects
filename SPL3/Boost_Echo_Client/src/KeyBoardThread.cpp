@@ -187,7 +187,7 @@ void KeyBoardThread::logout() {
     handler->add_to_rcptId_cmmnd_map(receipt_id,"discon");
     handler->sendFrameAscii(disconnect_stomp_message,'\0');
     this->receipt_id++;
-    this->terminated= true;
+    // this->terminated= true;
 
 
 }

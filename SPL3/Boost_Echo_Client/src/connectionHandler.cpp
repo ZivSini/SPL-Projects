@@ -229,10 +229,15 @@ void ConnectionHandler::run() {
             else if(stomp_command== "RECEIPT") {
                 string full_receipt_id = answer_vector.at(1);
                 int indexColon = full_receipt_id.find(":");
-                int receipt_id = stoi(full_receipt_id.substr(indexColon+1));
+                string rcpt_id = full_receipt_id.substr(indexColon+1);
+                int receipt_id = stoi(rcpt_id);
                 unordered_map<int, string>::const_iterator it = receiptId_command_map.find(receipt_id);
                 string command = it->second;
-                if(command== "discon"){} /// something
+                if(command== "discon"){
+                    socket_.close();
+                    connected= false;
+                    cout<<"DISCONNECTED"<<endl;
+                } /// something
                 else if(command=="sub") {
                     unordered_map<int, string>::const_iterator it = receiptId_topic_map.find(receipt_id);
                     string topic = it->second;
