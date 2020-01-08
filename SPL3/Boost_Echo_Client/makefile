@@ -1,16 +1,19 @@
 CFLAGS:=-c -Wall -Weffc++ -g -std=c++11 -Iinclude
 LDFLAGS:=-lboost_system
 
-all: EchoClient
-	g++ -o  bin/connectionHandler.o bin/KeyBoardThread.o $(LDFLAGS)
+all: client
+	g++ -o -pthread bin/connectionHandler.o bin/KeyBoardThread.o $(LDFLAGS)
 
-EchoClient: bin/connectionHandler.o bin/KeyBoardThread.o
+client: bin/main.o bin/connectionHandler.o bin/KeyBoardThread.o
+	
+bin/main.o: src/main.cpp
+	g++ -pthread $(CFLAGS) -o bin/main.o src/main.cpp
 	
 bin/connectionHandler.o: src/connectionHandler.cpp
-	g++ $(CFLAGS) -o bin/connectionHandler.o src/connectionHandler.cpp
+	g++ -pthread $(CFLAGS) -o bin/connectionHandler.o src/connectionHandler.cpp
 
 bin/KeyBoardThread.o: src/KeyBoardThread.cpp
-	g++ $(CFLAGS) -o bin/KeyBoardThread.o src/KeyBoardThread.cpp
+	g++ -pthread $(CFLAGS) -o bin/KeyBoardThread.o src/KeyBoardThread.cpp
 	
 .PHONY: clean
 clean:
