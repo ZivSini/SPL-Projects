@@ -172,8 +172,6 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
             }
 
-
-
             break;
             default:
                 throw new IllegalStateException("Unexpected value: " + stringMsg[0]);
