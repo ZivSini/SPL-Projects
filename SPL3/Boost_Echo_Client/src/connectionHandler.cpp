@@ -170,6 +170,10 @@ void ConnectionHandler::run() {
                                              "Taking " + book_name + " from " + userHasBook + "\n" +
                                              "\0";
                             sendFrameAscii(sendMsg,'\0');
+                            if(topic_books_map.find(topic)==topic_books_map.end()){
+                                list<string> *book_list = new list<string>;
+                                topic_books_map[topic]=book_list;
+                            }
                             topic_books_map.at(topic)->push_back(book_name);
                             books_prevOwner_map[book_name] = userHasBook;
                             break;
