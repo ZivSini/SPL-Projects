@@ -187,9 +187,10 @@ void ConnectionHandler::run() {
 
                 }
                 else if (msg_body.find("Taking") != -1) {
-                    size_t pos = msg_body.find("from");
-                    string user = msg_body.substr(pos + 5, msg_body.size());
-                    string book_name = msg_body.substr(7, pos - 1);
+                    size_t from_pos = msg_body.find("from");
+                    string user = msg_body.substr(from_pos + 5, msg_body.size());
+                    int book_name_length = from_pos - 8;
+                    string book_name = msg_body.substr(7, book_name_length);
                     if (user == this->userName) {
                         topic_books_map.at(topic)->remove(book_name);
                     }
