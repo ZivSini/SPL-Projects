@@ -126,7 +126,7 @@ void ConnectionHandler::run() {
             break;
         } else {
             std::vector<std::string> answer_vector;
-            boost::split(answer_vector, answer_from_server, boost::is_any_of(" "));
+            boost::split(answer_vector, answer_from_server, boost::is_any_of("\n"));
             string stomp_command = answer_vector.at(0);
             if(stomp_command== "CONNECTED") {
                 cout << "Login successful\n";
@@ -134,7 +134,7 @@ void ConnectionHandler::run() {
             else if(stomp_command=="MESSAGE") {
                 string msg_body = answer_vector.at(5);
                 size_t pos = msg_body.find("borrow");
-                string book_name = msg_body.substr(pos + 7, msg_body.size() - 1);
+                string book_name = msg_body.substr(pos + 7, msg_body.size() );
                 string topic = answer_vector.at(3);
                 int posOfColon = topic.find(":");
                 topic = topic.substr(posOfColon+1);
@@ -177,7 +177,7 @@ void ConnectionHandler::run() {
                 }
                 if (msg_body.find("Taking") != -1) {
                     size_t pos = msg_body.find("from");
-                    string user = msg_body.substr(pos + 5, msg_body.size() - 1);
+                    string user = msg_body.substr(pos + 5, msg_body.size() );
                     if (user == this->userName) {
                         topic_books_map.at(topic)->remove(book_name);
                     }
@@ -185,7 +185,7 @@ void ConnectionHandler::run() {
                 }
                 if (msg_body.find("Returning") != -1) {
                     size_t pos = msg_body.find("to");
-                    string user = msg_body.substr(pos + 3, msg_body.size() - 1);
+                    string user = msg_body.substr(pos + 3, msg_body.size() );
                     if (user == this->userName) {
                         topic_books_map.at(topic)->push_back(book_name);
                     }
@@ -197,12 +197,12 @@ void ConnectionHandler::run() {
                     for (string s: *booksInTheTopic) {
                         booksList += s + ",";
                     }
-                    booksList = booksList.substr(0, booksList.size() - 2);
+                    booksList = booksList.substr(0, booksList.size() - 1);
                     string sendMsg = "SEND\n"
                                      "destination:" + topic + "\n\n" +
-                                     booksList + "\n" +
+                                     userName+":"+booksList + "\n" +
                                      "\0";
-                    sendLine(sendMsg);
+                    sendFrameAscii(sendMsg,'\0');
                     break;
                 }
 
