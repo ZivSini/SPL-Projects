@@ -136,7 +136,10 @@ void KeyBoardThread::exit(vector<string> msg_input) {
 
 void KeyBoardThread::add(vector<string> msg) {
     string topic = msg.at(1);
-    string book_name = msg.at(2);
+    string book_name;
+    for (int i=2; i<msg.size();i++){
+        book_name+=msg.at(i);
+    }
     string sendMsg = "SEND\n"
                      "destination:"+ topic+"\n\n"+
                      userName+" has added the book "+book_name+"\n"+
