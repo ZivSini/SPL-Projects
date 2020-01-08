@@ -41,8 +41,8 @@ public class ConnectionsImpl <T>implements Connections<T> {
     /**
      * sends the {@param} msg to every subId that is subscribes to the {@param} channel. * */
     public void send(String channel, T msg) throws IOException {
-        for (int subId : topics_subsMap.get(channel)) {
-            send(subId, msg);
+        for (int connId : topics_subsMap.get(channel)) {
+            send(connId, msg);
         }
     }
 

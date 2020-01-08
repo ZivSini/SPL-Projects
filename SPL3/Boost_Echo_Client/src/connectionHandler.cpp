@@ -123,7 +123,7 @@ void ConnectionHandler::run() {
         string answer_from_server;
         if (!getFrameAscii(answer_from_server,'\0')) {
             cout << "Disconnected. Exiting...\n" << endl;
-            break;
+//            break;
         } else {
             std::vector<std::string> answer_vector;
             boost::split(answer_vector, answer_from_server, boost::is_any_of("\n"));
@@ -133,77 +133,96 @@ void ConnectionHandler::run() {
             }
             else if(stomp_command=="MESSAGE") {
                 string msg_body = answer_vector.at(5);
-                size_t pos = msg_body.find("borrow");
-                string book_name = msg_body.substr(pos + 7, msg_body.size() );
                 string topic = answer_vector.at(3);
                 int posOfColon = topic.find(":");
-                topic = topic.substr(posOfColon+1);
+                topic = topic.substr(posOfColon + 1);
                 if (msg_body.find("borrow") != -1) {
+                    cout<< userName+" got borrow command"<< endl;
                     unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
+                    size_t pos = msg_body.find("borrow");
+                    string book_name = msg_body.substr(pos + 7, msg_body.size());
                     if (iter != topic_books_map.end()) {
-                        list<string>* tmpList = iter->second;
+                        cout<< userName+" got borrow and found topic command - "+ book_name<< endl;
+                        list<string> *tmpList = iter->second;
 //                            list<basic_string<char>> *p = std::find(tmpList, tmpList + tmpList->size(), book_name);
-                        for(string s : *tmpList)
-                        {
-                            if(s==book_name)
-                            {
-                                string sendMsg =+ "SEND\n"
+                        for (string s : *tmpList) {
+                            if (s == book_name) {
+                                cout<< userName+" got borrow and found book in library command"<< endl;
+                                string sendMsg = +"SEND\n"
                                                   "destination:" + topic + "\n\n" +
-                                                userName + " has " + book_name + "\n" +
-                                                "\0";
-                                sendLine(sendMsg);
-                                break;
+                                                 userName + " has " + book_name + "\n" +
+                                                 "\0";
+                                sendFrameAscii(sendMsg,'\0');
+//                                break;
                             }
                         }
                     }
                 }
-                if (msg_body.find("has") != -1) {
-                    size_t pos = msg_body.find("has");
-                    string userHasBook = msg_body.substr(pos + 4, msg_body.size() - 1);
+                else if (msg_body.find("has") != -1) {
+                    size_t has_pos = msg_body.find("has");
+                    string book_name = msg_body.substr(has_pos + 4, msg_body.size());
+                    string userHasBook = msg_body.substr(0, has_pos - 1);
+                    bool found_book=false;
                     for (string s:booksToBorrow) {
-                        if (s == book_name) {
-                            booksToBorrow.remove(book_name);
-                            string sendMsg = "SEND\n"
-                                             "destination:" + topic + "\n\n" +
-                                             "Taking " + book_name + "from " + userHasBook + "\n" +
-                                             "\0";
-                            sendLine(sendMsg);
-                            topic_books_map.at(topic)->push_back(book_name);
-                            books_prevOwner_map[book_name] = userHasBook;
-                            break;
+                        if (!found_book) {
+                            if (s == book_name) {
+                                found_book = true;
+                                string sendMsg = "SEND\n"
+                                                 "destination:" + topic + "\n\n" +
+                                                 "Taking " + book_name + " from " + userHasBook + "\n" +
+                                                 "\0";
+                                sendFrameAscii(sendMsg, '\0');
+                                addBook(topic, book_name);
+//                            if(topic_books_map.find(topic)==topic_books_map.end()){
+//                                list<string> *book_list = new list<string>;
+//                                topic_books_map[topic]=book_list;
+//                            }
+//                            topic_books_map.at(topic)->push_back(book_name);
+                                books_prevOwner_map[book_name] = userHasBook;
+//                            break;
+                            }
                         }
                     }
+                    booksToBorrow.remove(book_name);
 
                 }
-                if (msg_body.find("Taking") != -1) {
-                    size_t pos = msg_body.find("from");
-                    string user = msg_body.substr(pos + 5, msg_body.size() );
+                else if (msg_body.find("Taking") != -1) {
+                    size_t from_pos = msg_body.find("from");
+                    string user = msg_body.substr(from_pos + 5, msg_body.size());
+                    int book_name_length = from_pos - 8;
+                    string book_name = msg_body.substr(7, book_name_length);
                     if (user == this->userName) {
                         topic_books_map.at(topic)->remove(book_name);
                     }
-                    break;
+//                    break;
                 }
-                if (msg_body.find("Returning") != -1) {
+                else if (msg_body.find("Returning") != -1) {
                     size_t pos = msg_body.find("to");
-                    string user = msg_body.substr(pos + 3, msg_body.size() );
+                    string book_name = msg_body.substr(10, pos - 1);
+                    string user = msg_body.substr(pos + 3, msg_body.size());
                     if (user == this->userName) {
                         topic_books_map.at(topic)->push_back(book_name);
                     }
-                    break;
+//                    break;
                 }
-                if (msg_body.find("book status") != -1) {
+               else if (msg_body.find("book status") != -1) {
+                    cout<< userName+" got status command"<< endl;
                     string booksList;
-                    list<string> *booksInTheTopic = topic_books_map.at(topic);
-                    for (string s: *booksInTheTopic) {
-                        booksList += s + ",";
+                    if (!topic_books_map.empty()) {
+                        if(topic_books_map.find(topic)!=topic_books_map.end()) {
+                            list<string> *booksInTheTopic = topic_books_map.at(topic);
+                            for (string s: *booksInTheTopic) {
+                                booksList += s + ",";
+                            }
+                            booksList = booksList.substr(0, booksList.size() - 1);
+                            string sendMsg = "SEND\n"
+                                             "destination:" + topic + "\n\n" +
+                                             userName + ":" + booksList + "\n" +
+                                             "\0";
+                            sendFrameAscii(sendMsg, '\0');
+//                            break;
+                        }
                     }
-                    booksList = booksList.substr(0, booksList.size() - 1);
-                    string sendMsg = "SEND\n"
-                                     "destination:" + topic + "\n\n" +
-                                     userName+":"+booksList + "\n" +
-                                     "\0";
-                    sendFrameAscii(sendMsg,'\0');
-                    break;
                 }
 
             }
