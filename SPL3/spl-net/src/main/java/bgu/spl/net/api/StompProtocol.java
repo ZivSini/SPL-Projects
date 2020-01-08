@@ -7,6 +7,7 @@ import bgu.spl.net.srv.ReplyMessage;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +111,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 colonIndex = stringMsg[3].indexOf(":");
                 String receiptId = stringMsg[3].substring(colonIndex+1);
                 if (!connections.getTopics_subsMap().containsKey(topic)){
-                    List<Integer> conn_id_list = new LinkedList<>();
+                    List<Integer> conn_id_list = new ArrayList<>();
                     connections.getTopics_subsMap().put(topic,conn_id_list);
                 }
                 connections.getTopics_subsMap().get(topic).add(connectionId);
@@ -136,9 +137,9 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         "receipt:"+receiptId+"\n\n"+
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
-
-                this.connections.getTopics_subsMap().get(topic).remove(connectionId);/** unsubscribe from the topic */
-
+                Integer connId = connectionId; // so we can use the remove() method with connId as Object and not as index
+                this.connections.getTopics_subsMap().get(topic).remove(connId);/** unsubscribe from the topic */
+                System.out.println("got to line 141 in stomp protocol unsub");
                 connections.send(connectionId, (T) msgToReply);
                 break;
             }
@@ -149,9 +150,8 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 msgReply.setTopic(topic);
                 Integer subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
                 String sendType = stringMsg[2];
-
                 msgToReply="MESSAGE\n" +
-                        "subscription:"+subsctipId.toString()+"\n"+
+                        "general_subscipsId\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
                         stringMsg[3]+"\n \u0000";
@@ -165,7 +165,8 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 for(String topic: this.connections.getTopics_subsMap().keySet())
                 {
                     if (connections.getTopics_subsMap().get(topic).contains(connectionId)) {
-                        this.connections.getTopics_subsMap().get(topic).remove(connectionId);
+                        Integer connId = connectionId; // so we can use the remove() method with connId as Object and not as index
+                        this.connections.getTopics_subsMap().get(topic).remove(connId);
                     }
                     connections.getClientsMap().get(connectionId).setLoggedIn(false);   // change loggedIn for this client to false so we can relog him once again with the same name and password
                 }

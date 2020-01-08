@@ -42,6 +42,15 @@ public class ConnectionsImpl <T>implements Connections<T> {
      * sends the {@param} msg to every subId that is subscribes to the {@param} channel. * */
     public void send(String channel, T msg) throws IOException {
         for (int connId : topics_subsMap.get(channel)) {
+            String[] stringMsg=((String) msg).split("\n");
+            if (stringMsg[0]=="MESSAGE") {
+                String msg_with_subsId="";
+                String subsId = connId_topic_subId_map.get(connId).get(channel).toString(); // gets the subscripId of this connId for this topic/channel
+                stringMsg[1]="subscription:"+subsId; // replaces it
+                for (String s: stringMsg)
+                    msg_with_subsId+=s; //create the new message with the subscripId;
+                send(connId,(T)msg_with_subsId);
+            }else
             send(connId, msg);
         }
     }

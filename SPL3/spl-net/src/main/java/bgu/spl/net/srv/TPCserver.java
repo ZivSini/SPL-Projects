@@ -52,6 +52,7 @@ public class TPCserver <T>extends BaseServer<T> {
                 connections.getClients_ConsHandMap().put(id,handler); /** adds the new client to the clients-connections map */
                 ((StompMessagingProtocol)protocol).start(id,connections);
                 execute(handler);
+                System.out.println("ConnectionId: "+id);
 
             }
         } catch (IOException ex) {
