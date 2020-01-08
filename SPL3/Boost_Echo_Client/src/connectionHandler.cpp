@@ -123,7 +123,7 @@ void ConnectionHandler::run() {
         string answer_from_server;
         if (!getFrameAscii(answer_from_server,'\0')) {
             cout << "Disconnected. Exiting...\n" << endl;
-            break;
+//            break;
         } else {
             std::vector<std::string> answer_vector;
             boost::split(answer_vector, answer_from_server, boost::is_any_of("\n"));
@@ -153,12 +153,12 @@ void ConnectionHandler::run() {
                                                  userName + " has " + book_name + "\n" +
                                                  "\0";
                                 sendFrameAscii(sendMsg,'\0');
-                                break;
+//                                break;
                             }
                         }
                     }
                 }
-                if (msg_body.find("has") != -1) {
+                else if (msg_body.find("has") != -1) {
                     size_t has_pos = msg_body.find("has");
                     string book_name = msg_body.substr(has_pos + 4, msg_body.size());
                     string userHasBook = msg_body.substr(0, has_pos - 1);
@@ -176,30 +176,30 @@ void ConnectionHandler::run() {
                             }
                             topic_books_map.at(topic)->push_back(book_name);
                             books_prevOwner_map[book_name] = userHasBook;
-                            break;
+//                            break;
                         }
                     }
 
                 }
-                if (msg_body.find("Taking") != -1) {
+                else if (msg_body.find("Taking") != -1) {
                     size_t pos = msg_body.find("from");
                     string user = msg_body.substr(pos + 5, msg_body.size());
                     string book_name = msg_body.substr(7, pos - 1);
                     if (user == this->userName) {
                         topic_books_map.at(topic)->remove(book_name);
                     }
-                    break;
+//                    break;
                 }
-                if (msg_body.find("Returning") != -1) {
+                else if (msg_body.find("Returning") != -1) {
                     size_t pos = msg_body.find("to");
                     string book_name = msg_body.substr(10, pos - 1);
                     string user = msg_body.substr(pos + 3, msg_body.size());
                     if (user == this->userName) {
                         topic_books_map.at(topic)->push_back(book_name);
                     }
-                    break;
+//                    break;
                 }
-                if (msg_body.find("book status") != -1) {
+               else if (msg_body.find("book status") != -1) {
                     cout<< userName+" got status command"<< endl;
                     string booksList;
                     if (!topic_books_map.empty()) {
@@ -214,7 +214,7 @@ void ConnectionHandler::run() {
                                              userName + ":" + booksList + "\n" +
                                              "\0";
                             sendFrameAscii(sendMsg, '\0');
-                            break;
+//                            break;
                         }
                     }
                 }
