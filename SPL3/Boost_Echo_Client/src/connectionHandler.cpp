@@ -149,7 +149,7 @@ void ConnectionHandler::run() {
                                                   "destination:" + topic + "\n\n" +
                                                  userName + " has " + book_name + "\n" +
                                                  "\0";
-                                sendLine(sendMsg);
+                                sendFrameAscii(sendMsg,'\0');
                                 break;
                             }
                         }
@@ -166,7 +166,7 @@ void ConnectionHandler::run() {
                                              "destination:" + topic + "\n\n" +
                                              "Taking " + book_name + "from " + userHasBook + "\n" +
                                              "\0";
-                            sendLine(sendMsg);
+                            sendFrameAscii(sendMsg,'\0');
                             topic_books_map.at(topic)->push_back(book_name);
                             books_prevOwner_map[book_name] = userHasBook;
                             break;
