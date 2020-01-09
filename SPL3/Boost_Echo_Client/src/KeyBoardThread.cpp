@@ -21,57 +21,60 @@ using namespace std;
 
 
 void KeyBoardThread::runKeyBoard() {
-    string first_input; // we know it's gonna be login command
-    getline(cin, first_input);
-    std::vector<std::string> msg_input;
-    boost::split(msg_input, first_input, boost::is_any_of(" "));
-    string keyboard_command = msg_input.at(0);
-    string input_host_port = msg_input.at(1);
-    vector<string> host_port;
-    boost::split(host_port, input_host_port, boost::is_any_of(":"));
-    string host = host_port.at(0);
-    string port = host_port.at(1);
-    userName = msg_input.at(2);
-    string password = msg_input.at(3);
-    this->handler = new ConnectionHandler(host, stol(port));
-    if (!handler->connect()) {
-        cout << "Could not connect to server" << endl;
-        //TODO: close everything and shut or something
-    }
-    thread handler_thread(&ConnectionHandler::run,handler);
-    handler->setUserName(userName);
-    string connect_stomp_message ="CONNECT\n"
-                                  "accept-version:1/2\n"
-                                  "host:stomp.cs.bgu.ac.il\n"
-                                  "login:" + userName + "\n" +
-                                  "passcode:" + password + "\n\n" +
-                                  "\0";
-    handler->sendFrameAscii(connect_stomp_message,'\0');
-
-    while (!terminated) {
-        string input;
-        getline(cin, input);
+    while (true) {
+        string first_input; // we know it's gonna be login command
+        getline(cin, first_input);
         std::vector<std::string> msg_input;
-        boost::split(msg_input, input, boost::is_any_of(" "));
+        boost::split(msg_input, first_input, boost::is_any_of(" "));
         string keyboard_command = msg_input.at(0);
-        if (keyboard_command == "login") {
-            login(msg_input);
+        string input_host_port = msg_input.at(1);
+        vector<string> host_port;
+        boost::split(host_port, input_host_port, boost::is_any_of(":"));
+        string host = host_port.at(0);
+        string port = host_port.at(1);
+        userName = msg_input.at(2);
+        string password = msg_input.at(3);
+        this->handler = new ConnectionHandler(host, stol(port));
+        if (!handler->connect()) {
+            cout << "Could not connect to server" << endl;
+            //TODO: close everything and shut or something
         }
-        if (keyboard_command == "join") {
-            join(msg_input);
-        } else if (keyboard_command == "exit") {
-            exit(msg_input);
-        } else if (keyboard_command == "add") {
-            add(msg_input);
-        } else if (keyboard_command == "borrow") borrow(msg_input);
-        else if (keyboard_command == "return") { fReturn(msg_input); }
-        else if (keyboard_command == "status")status(msg_input);
-        else if (keyboard_command == "logout")logout();
+        thread handler_thread(&ConnectionHandler::run, handler);
+        terminated= false;
+        handler->setUserName(userName);
+        string connect_stomp_message = "CONNECT\n"
+                                       "accept-version:1/2\n"
+                                       "host:stomp.cs.bgu.ac.il\n"
+                                       "login:" + userName + "\n" +
+                                       "passcode:" + password + "\n\n" +
+                                       "\0";
+        handler->sendFrameAscii(connect_stomp_message, '\0');
 
+        while (!terminated) {
+            string input;
+            getline(cin, input);
+            std::vector<std::string> msg_input;
+            boost::split(msg_input, input, boost::is_any_of(" "));
+            string keyboard_command = msg_input.at(0);
+            if (keyboard_command == "login") {
+                login(msg_input);
+            }
+            if (keyboard_command == "join") {
+                join(msg_input);
+            } else if (keyboard_command == "exit") {
+                exit(msg_input);
+            } else if (keyboard_command == "add") {
+                add(msg_input);
+            } else if (keyboard_command == "borrow") borrow(msg_input);
+            else if (keyboard_command == "return") { fReturn(msg_input); }
+            else if (keyboard_command == "status")status(msg_input);
+            else if (keyboard_command == "logout")logout();
+
+
+        }
+        handler_thread.join();
 
     }
-    handler_thread.join();
-
 }
 
 void KeyBoardThread::login(vector<string> msg_input) {
@@ -95,7 +98,7 @@ void KeyBoardThread::login(vector<string> msg_input) {
                                       "passcode:" + password + "\n\n" +
                                       "\0";
         handler->sendFrameAscii(connect_stomp_message,'\0');
-        handler_thread.join();
+     //   handler_thread.join();
     }
 }
 
@@ -187,7 +190,7 @@ void KeyBoardThread::logout() {
     handler->add_to_rcptId_cmmnd_map(receipt_id,"discon");
     handler->sendFrameAscii(disconnect_stomp_message,'\0');
     this->receipt_id++;
-    // this->terminated= true;
+     this->terminated= true;
 
 
 }

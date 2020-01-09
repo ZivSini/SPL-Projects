@@ -1,19 +1,16 @@
 package bgu.spl.net.srv;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class Client {
 
     private String name;
-    private int connectioId;
+    private int connectionId;
     private boolean loggedIn;
     private String password;
 
-    public Client(String name, String password, int connectioId) {
+    public Client(String name, String password, int connectionId) {
         this.name = name;
         this.password = password;
-        this.connectioId = connectioId;
+        this.connectionId = connectionId;
         this.loggedIn = false;
     }
 
@@ -33,8 +30,8 @@ public class Client {
         return password;
     }
 
-    public int getConnectioId() {
-        return connectioId;
+    public int getConnectionId() {
+        return connectionId;
     }
 
 
