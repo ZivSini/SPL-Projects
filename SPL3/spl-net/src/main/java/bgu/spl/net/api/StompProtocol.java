@@ -174,7 +174,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         if (connections.getClientsMap().get(name).getConnectionId()==connectionId & !loggedOut)
                         {
                             loggedOut=true;
-                            connections.getClientsMap().get(connectionId).setLoggedIn(false);   // change loggedIn for this client to false so we can relog him once again with the same name and password
+                            connections.getClientsMap().get(name).setLoggedIn(false);   // change loggedIn for this client to false so we can relog him once again with the same name and password
                         }
                     }
 

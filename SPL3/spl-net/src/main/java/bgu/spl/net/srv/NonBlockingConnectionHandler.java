@@ -62,6 +62,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                             T response = null;
                             try {
                                 protocol.process(nextMessage);
+                                System.out.println(nextMessage);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
