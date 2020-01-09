@@ -5,6 +5,7 @@
 
 
 using boost::asio::ip::tcp;
+using boost*;
 
 using std::cin;
 using std::cout;
@@ -131,7 +132,7 @@ void ConnectionHandler::run() {
             string stomp_command = answer_vector.at(0);
             if(stomp_command== "CONNECTED") {
                 cout << "Login successful\n";
-                key_board_can_run= true;
+                this->key_board_can_run= true;
             }
             else if(stomp_command=="MESSAGE") {
                 string msg_body = answer_vector.at(5);
@@ -256,6 +257,7 @@ void ConnectionHandler::run() {
                 int indexColon = answer_vector.at(1).find(":");
                 string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
+                boost::thread::inte
             }
         }
     }

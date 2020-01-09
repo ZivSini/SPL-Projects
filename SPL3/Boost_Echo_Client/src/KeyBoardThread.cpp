@@ -48,9 +48,11 @@ void KeyBoardThread::runKeyBoard() {
                                        "passcode:" + password + "\n\n" +
                                        "\0";
         handler->sendFrameAscii(connect_stomp_message, '\0');
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (handler->getKeyBoardCanRun())
             terminated=false;
         while (!terminated) {
+            cout<<"got into the while loop"<<endl;
             string input;
             getline(cin, input);
             std::vector<std::string> msg_input;
@@ -72,7 +74,9 @@ void KeyBoardThread::runKeyBoard() {
 
 
         }
-        handler_thread.join();
+      //  if (handler->getKeyBoardCanRun())
+      cout<<"handler thread joied"<<endl;
+            handler_thread.join();
 
     }
 }
