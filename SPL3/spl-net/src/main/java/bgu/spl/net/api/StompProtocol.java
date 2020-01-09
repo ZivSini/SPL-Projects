@@ -30,7 +30,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
     //TODO: should identify the client by name and not id so we cam reconnect him with diffrente connectionId -
     // deal in line 34-end
     @Override
-    public T process(T msg) throws IOException {
+    public void process(T msg) throws IOException {
         String[] stringMsg=((String) msg).split("\n");
         ReplyMessage msgReply = new ReplyMessage();
         String msgToReply = "";
@@ -45,10 +45,10 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
 
                 // client exist
-                if (connections.getClientsMap().containsKey(connectionId)) {
+                if (connections.getClientsMap().containsKey(clientName)) {
 
                     // wrong password
-                    if (connections.getClientsMap().get(connectionId).getPassword() != clientPW) {
+                    if (connections.getClientsMap().get(clientName).getPassword() != clientPW) {
                         /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR\n" +
                                 "message: Wrong password\n" +
@@ -59,7 +59,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         //TODO: DISCONNECT SOMEHOW
 
                         // user is already logged in
-                    } else if (connections.getClientsMap().get(connectionId).isLoggedIn()) {
+                    } else if (connections.getClientsMap().get(clientName).isLoggedIn()) {
                         /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR\n" +
                                 "message: User already logged in\n" +
@@ -81,7 +81,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 // client doesn't exist
                 else {
                     Client c = new Client(clientName,clientPW,connectionId);
-                    connections.getClientsMap().put(connectionId,c);
+                    connections.getClientsMap().put(clientName,c);
                     msgToReply = "CONNECTED\n" +
                             version + "\n\n" +
                             "\u0000";
@@ -168,7 +168,16 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         Integer connId = connectionId; // so we can use the remove() method with connId as Object and not as index
                         this.connections.getTopics_subsMap().get(topic).remove(connId);
                     }
-                    connections.getClientsMap().get(connectionId).setLoggedIn(false);   // change loggedIn for this client to false so we can relog him once again with the same name and password
+                    boolean loggedOut = false;
+                    for(String name : connections.getClientsMap().keySet())
+                    {
+                        if (connections.getClientsMap().get(name).getConnectionId()==connectionId & !loggedOut)
+                        {
+                            loggedOut=true;
+                            connections.getClientsMap().get(name).setLoggedIn(false);   // change loggedIn for this client to false so we can relog him once again with the same name and password
+                        }
+                    }
+
                 }
                 int colonIndex = stringMsg[1].indexOf(":");
                 String receiptId = stringMsg[1].substring(colonIndex+1);
@@ -187,7 +196,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
 
 
-        return (T) msgReply;
+//        return (T) msgReply;
     }
 
     @Override

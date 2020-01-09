@@ -13,7 +13,7 @@ public class TPCserver <T>extends BaseServer<T> {
 
     private Connections<T> connections;
     private final int port;
-    private final Supplier<MessagingProtocol<T>> protocolFactory;
+    private final Supplier<StompMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
 
@@ -21,7 +21,7 @@ public class TPCserver <T>extends BaseServer<T> {
 
 
 
-    public TPCserver(int port, Supplier<MessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encdecFactory) {
+    public TPCserver(int port, Supplier<StompMessagingProtocol<T>> protocolFactory, Supplier<MessageEncoderDecoder<T>> encdecFactory) {
         super(port, protocolFactory, encdecFactory);
         this.port = port;
         this.protocolFactory = protocolFactory;
@@ -42,7 +42,7 @@ public class TPCserver <T>extends BaseServer<T> {
             while (!Thread.currentThread().isInterrupted()) {
 
                 Socket clientSock = serverSock.accept();
-                MessagingProtocol protocol = protocolFactory.get();
+                StompMessagingProtocol protocol = protocolFactory.get();
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
