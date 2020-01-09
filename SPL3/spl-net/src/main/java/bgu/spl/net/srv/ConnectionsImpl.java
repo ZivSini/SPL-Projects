@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionsImpl <T>implements Connections<T> {
 
     private Map<Integer, ConnectionHandler> clients_ConsHandMap;
-    private Map<Integer,Client> clientsMap;
+    private Map<String,Client> clientsMap;
     private Map<String, List<Integer>> topics_subsMap;
     private Map<Integer,Map<String,Integer>> connId_topic_subId_map;
     private static ConnectionsImpl single_instance=null;
@@ -67,13 +67,13 @@ public class ConnectionsImpl <T>implements Connections<T> {
 
 
 
-    public Map<Integer, Client> getClientsMap() {
+    public Map<String, Client> getClientsMap() {
         return clientsMap;
     }
 
-    public void setClientsMap(Map<Integer, Client> clientsMap) {
-        this.clientsMap = clientsMap;
-    }
+//    public void setClientsMap(Map<Integer, Client> clientsMap) {
+//        this.clientsMap = clientsMap;
+//    }
 
 
     public Map<String, List<Integer>> getTopics_subsMap() {

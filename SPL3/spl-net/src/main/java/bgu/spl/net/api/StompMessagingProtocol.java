@@ -4,13 +4,13 @@ import bgu.spl.net.srv.Connections;
 
 import java.io.IOException;
 
-public interface StompMessagingProtocol<T> extends MessagingProtocol<T>  {
+public interface StompMessagingProtocol<T>   {
 	/**
 	 * Used to initiate the current client protocol with it's personal connection ID and the connections implementation
 	**/
     void start(int connectionId, Connections<T> connections);
 
-	public T process(T msg) throws IOException;
+	public void process(T msg) throws IOException;
     // in Impl:
 	// ((Command) message).exectue();
 	
