@@ -24,7 +24,11 @@ private:
     unordered_map<string,list<string>*> topic_books_map;
     unordered_map<int,string> receiptId_topic_map;
     unordered_map<int,string> receiptId_command_map;
+    bool key_board_can_run;
+public:
+    bool getKeyBoardCanRun() const;
 
+private:
 
     string userName;
     list<string> booksToBorrow;

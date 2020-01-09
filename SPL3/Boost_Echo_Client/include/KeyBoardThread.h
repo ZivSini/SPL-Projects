@@ -34,6 +34,7 @@ private:
     void status(vector<string>);
     bool terminated;
 public:
+//    static void setTerminated(bool);
     KeyBoardThread ();
     void runKeyBoard();
 };

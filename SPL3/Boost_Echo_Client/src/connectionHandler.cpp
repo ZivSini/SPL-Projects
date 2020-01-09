@@ -1,4 +1,5 @@
 #include "../include/connectionHandler.h"
+#include "../include/KeyBoardThread.h"
 #include <boost/algorithm/string.hpp>
 
 
@@ -11,7 +12,7 @@ using std::cerr;
 using std::endl;
 using namespace std;
 
-ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){}
+ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_),key_board_can_run(false){}
 
 ConnectionHandler::~ConnectionHandler() {
     close();
@@ -130,6 +131,7 @@ void ConnectionHandler::run() {
             string stomp_command = answer_vector.at(0);
             if(stomp_command== "CONNECTED") {
                 cout << "Login successful\n";
+                key_board_can_run= true;
             }
             else if(stomp_command=="MESSAGE") {
                 string msg_body = answer_vector.at(5);
@@ -158,7 +160,7 @@ void ConnectionHandler::run() {
                         }
                     }
                 }
-                else if (msg_body.find("has") != -1) {
+                else if (msg_body.find(" has ") != -1) {
                     size_t has_pos = msg_body.find("has");
                     string book_name = msg_body.substr(has_pos + 4, msg_body.size());
                     string userHasBook = msg_body.substr(0, has_pos - 1);
@@ -315,6 +317,10 @@ void ConnectionHandler::addBookToBorrow(string bookName) {
 
 void ConnectionHandler::removeBookToBorrow(string bookName) {
     booksToBorrow.remove(bookName);
+}
+
+bool ConnectionHandler::getKeyBoardCanRun() const {
+    return key_board_can_run;
 }
 
 

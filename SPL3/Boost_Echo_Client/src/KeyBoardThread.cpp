@@ -40,7 +40,6 @@ void KeyBoardThread::runKeyBoard() {
             //TODO: close everything and shut or something
         }
         thread handler_thread(&ConnectionHandler::run, handler);
-        terminated= false;
         handler->setUserName(userName);
         string connect_stomp_message = "CONNECT\n"
                                        "accept-version:1.2\n"
@@ -49,16 +48,17 @@ void KeyBoardThread::runKeyBoard() {
                                        "passcode:" + password + "\n\n" +
                                        "\0";
         handler->sendFrameAscii(connect_stomp_message, '\0');
-
+        if (handler->getKeyBoardCanRun())
+            terminated=false;
         while (!terminated) {
             string input;
             getline(cin, input);
             std::vector<std::string> msg_input;
             boost::split(msg_input, input, boost::is_any_of(" "));
             string keyboard_command = msg_input.at(0);
-            if (keyboard_command == "login") {
-                login(msg_input);
-            }
+//            if (keyboard_command == "login") {
+//                login(msg_input);
+//            }
             if (keyboard_command == "join") {
                 join(msg_input);
             } else if (keyboard_command == "exit") {
@@ -196,5 +196,11 @@ void KeyBoardThread::logout() {
 
 }
 
-KeyBoardThread::KeyBoardThread():topic_id_map(),topic__receiptId_map(),subscription_id(0),receipt_id(0),handler(),userName(""), terminated(false){
+KeyBoardThread::KeyBoardThread():topic_id_map(),topic__receiptId_map(),subscription_id(0),receipt_id(0),handler(),userName(""),terminated(true){
+    terminated=true;
 }
+
+//void KeyBoardThread::setTerminated(bool is_terminated) {
+//    terminated= (is_terminated);
+//
+//}
