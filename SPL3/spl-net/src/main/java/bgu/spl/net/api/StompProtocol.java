@@ -36,9 +36,9 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
         String msgToReply = "";
         switch (stringMsg[0]){
             case  ("CONNECT"): {
-                String version = stringMsg[1].substring(6); // stringMsg[1].substring(0,6)="accept-"
-                String clientName = stringMsg[3].substring(5); // stringMsg[3].substring(0,5)="login:"
-                String clientPW = stringMsg[4].substring(8); // stringMsg[4].substring(0,8)="password:"
+                String version = stringMsg[1].substring(7); // stringMsg[1].substring(0,6)="accept-"
+                String clientName = stringMsg[3].substring(6); // stringMsg[3].substring(0,5)="login:"
+                String clientPW = stringMsg[4].substring(9); // stringMsg[4].substring(0,8)="password:"
 
 
                 //TODO: HANDLE SOCKET ERROR

@@ -43,7 +43,7 @@ void KeyBoardThread::runKeyBoard() {
         terminated= false;
         handler->setUserName(userName);
         string connect_stomp_message = "CONNECT\n"
-                                       "accept-version:1/2\n"
+                                       "accept-version:1.2\n"
                                        "host:stomp.cs.bgu.ac.il\n"
                                        "login:" + userName + "\n" +
                                        "passcode:" + password + "\n\n" +
@@ -76,6 +76,7 @@ void KeyBoardThread::runKeyBoard() {
 
     }
 }
+
 
 void KeyBoardThread::login(vector<string> msg_input) {
     string input_host_port = msg_input.at(1);
