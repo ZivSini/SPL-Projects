@@ -76,6 +76,7 @@ void KeyBoardThread::runKeyBoard() {
         }
       //  if (handler->getKeyBoardCanRun())
       cout<<"handler thread joied"<<endl;
+//            handler->setConnected(false);
             handler_thread.join();
 
     }

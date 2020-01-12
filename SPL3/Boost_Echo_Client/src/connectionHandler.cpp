@@ -135,6 +135,7 @@ void ConnectionHandler::run() {
                 this->key_board_can_run= true;
             }
             else if(stomp_command=="MESSAGE") {
+//                cout<<answer_from_server<< endl;
                 string msg_body = answer_vector.at(5);
                 string topic = answer_vector.at(3);
                 int posOfColon = topic.find(":");
