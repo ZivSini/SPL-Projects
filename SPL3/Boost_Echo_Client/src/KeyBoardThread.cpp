@@ -184,7 +184,6 @@ void KeyBoardThread::fReturn(vector<string> msg) {
                      "\0";
     handler->removeBook(topic,book_name);
     handler->sendFrameAscii(sendMsg,'\0');
-
 }
 
 void KeyBoardThread::status(vector<string> msg) {
