@@ -51,7 +51,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                     if (connections.getClientsMap().get(clientName).getPassword() != clientPW) {
                         /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR\n" +
-                                "message: Wrong password\n" +
+                                "message:Wrong password\n" +
                                 "\n" + // end of headers - start of body
                                 "MESSAGE\n" +
                                 "the password does not match the user account name" +
@@ -62,7 +62,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                     } else if (connections.getClientsMap().get(clientName).isLoggedIn()) {
                         /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR\n" +
-                                "message: User already logged in\n" +
+                                "message:User already logged in\n" +
                                 "\n" + // end of headers - start of body
                                 "MESSAGE\n" +
                                 "this user is already logged in" +
