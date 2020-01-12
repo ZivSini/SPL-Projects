@@ -40,7 +40,6 @@ void KeyBoardThread::runKeyBoard() {
             //TODO: close everything and shut or something
         }
         thread handler_thread(&ConnectionHandler::run, handler);
-        terminated= false;
         handler->setUserName(userName);
         string connect_stomp_message = "CONNECT\n"
                                        "accept-version:1.2\n"
@@ -49,16 +48,18 @@ void KeyBoardThread::runKeyBoard() {
                                        "passcode:" + password + "\n\n" +
                                        "\0";
         handler->sendFrameAscii(connect_stomp_message, '\0');
-
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        if (handler->getKeyBoardCanRun())
+            terminated=false;
         while (!terminated) {
             string input;
             getline(cin, input);
             std::vector<std::string> msg_input;
             boost::split(msg_input, input, boost::is_any_of(" "));
             string keyboard_command = msg_input.at(0);
-            if (keyboard_command == "login") {
-                login(msg_input);
-            }
+//            if (keyboard_command == "login") {
+//                login(msg_input);
+//            }
             if (keyboard_command == "join") {
                 join(msg_input);
             } else if (keyboard_command == "exit") {
@@ -72,7 +73,9 @@ void KeyBoardThread::runKeyBoard() {
 
 
         }
-        handler_thread.join();
+      //  if (handler->getKeyBoardCanRun())
+      cout<<"handler thread joied"<<endl;
+            handler_thread.join();
 
     }
 }
@@ -169,10 +172,17 @@ void KeyBoardThread::borrow(vector<string> msg) {
 }
 
 void KeyBoardThread::fReturn(vector<string> msg) {
+    string book_name;
+    string topic = msg.at(1);
+    for (int i = 2; i <msg.size() ; ++i) {
+        book_name+=msg.at(i)+" ";
+    }
+    book_name = book_name.substr(0,book_name.size()-1);
     string sendMsg = "SEND\n"
-                     "destination:"+ msg.at(1)+"\n\n"+
-                     "Returning "+msg.at(2)+" to"+handler->getBookPrevOwner(msg.at(2)) +"\n"+   /** get the userName we took the book from  */
+                     "destination:"+ topic+"\n\n"+
+                     "Returning "+book_name+" to "+handler->getBookPrevOwner(book_name) +"\n"+   /** get the userName we took the book from  */
                      "\0";
+    handler->removeBook(topic,book_name);
     handler->sendFrameAscii(sendMsg,'\0');
 }
 
@@ -196,5 +206,11 @@ void KeyBoardThread::logout() {
 
 }
 
-KeyBoardThread::KeyBoardThread():topic_id_map(),topic__receiptId_map(),subscription_id(0),receipt_id(0),handler(),userName(""), terminated(false){
+KeyBoardThread::KeyBoardThread():topic_id_map(),topic__receiptId_map(),subscription_id(0),receipt_id(0),handler(),userName(""),terminated(true){
+    terminated=true;
 }
+
+//void KeyBoardThread::setTerminated(bool is_terminated) {
+//    terminated= (is_terminated);
+//
+//}
