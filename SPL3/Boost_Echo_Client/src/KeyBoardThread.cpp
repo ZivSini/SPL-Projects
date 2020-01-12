@@ -40,6 +40,7 @@ void KeyBoardThread::runKeyBoard() {
             //TODO: close everything and shut or something
         }
         thread handler_thread(&ConnectionHandler::run, handler);
+//        cout<<"Thread id: "+handler_thread.get_id()+" started"<<endl;
         handler->setUserName(userName);
         string connect_stomp_message = "CONNECT\n"
                                        "accept-version:1.2\n"
@@ -57,10 +58,10 @@ void KeyBoardThread::runKeyBoard() {
             std::vector<std::string> msg_input;
             boost::split(msg_input, input, boost::is_any_of(" "));
             string keyboard_command = msg_input.at(0);
-//            if (keyboard_command == "login") {
-//                login(msg_input);
-//            }
-            if (keyboard_command == "join") {
+            if (keyboard_command == "login") {
+                login(msg_input);
+            }
+            else if (keyboard_command == "join") {
                 join(msg_input);
             } else if (keyboard_command == "exit") {
                 exit(msg_input);
@@ -89,12 +90,12 @@ void KeyBoardThread::login(vector<string> msg_input) {
     string port = host_port.at(1);
     userName = msg_input.at(2);
     string password = msg_input.at(3);
-    this->handler = new ConnectionHandler(host, stol(port));
-    if (!handler->connect()) {
-        cout << "Could not connect to server" << endl;
-    } else {
-        thread handler_thread(&ConnectionHandler::run,handler);
-        handler->setUserName(userName);
+//    this->handler = new ConnectionHandler(host, stol(port));
+//    if (!handler->connect()) {
+//        cout << "Could not connect to server" << endl;
+//    } else {
+//        thread handler_thread1(&ConnectionHandler::run, handler);
+//        handler->setUserName(userName);
         string connect_stomp_message ="CONNECT\n"
                                       "accept-version:1.2\n"
                                       "host:stomp.cs.bgu.ac.il\n"
@@ -102,8 +103,9 @@ void KeyBoardThread::login(vector<string> msg_input) {
                                       "passcode:" + password + "\n\n" +
                                       "\0";
         handler->sendFrameAscii(connect_stomp_message,'\0');
-     //   handler_thread.join();
-    }
+//        handler_thread1.join();
+//        cout<<"thread of login func finished join"<<endl;
+//    }
 }
 
 void KeyBoardThread::join(vector<string> msg_input){

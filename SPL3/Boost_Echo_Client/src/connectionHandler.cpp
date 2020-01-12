@@ -138,6 +138,7 @@ void ConnectionHandler::run() {
                 string topic = answer_vector.at(3);
                 int posOfColon = topic.find(":");
                 topic = topic.substr(posOfColon + 1);
+                cout<<topic+":"+msg_body<<endl;
                 if (msg_body.find("borrow") != -1) {
                     cout<< userName+" got borrow command"<< endl;
                     unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
@@ -257,8 +258,9 @@ void ConnectionHandler::run() {
                 int indexColon = answer_vector.at(1).find(":");
                 string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
+                if (error_msg=="Wrong password"){
                 break;
-            }
+}           }
         }
     }
 
