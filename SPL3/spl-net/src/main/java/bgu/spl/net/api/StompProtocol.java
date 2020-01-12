@@ -46,9 +46,9 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
 
                 // client exist
                 if (connections.getClientsMap().containsKey(clientName)) {
-
+                    String pw = connections.getClientsMap().get(clientName).getPassword();
                     // wrong password
-                    if (connections.getClientsMap().get(clientName).getPassword() != clientPW) {
+                    if (!pw.equals(clientPW)) {
                         /** error message "message: " MUST be in second line */
                         msgToReply = "ERROR\n" +
                                 "message:Wrong password\n" +
@@ -149,7 +149,10 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 int colonIndex = topic.indexOf(":");
                 topic = topic.substring(colonIndex+1);
                 msgReply.setTopic(topic);
-                Integer subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
+                Integer subsctipId = -1;
+                if(connections.getConnId_topic_subId_map().get(connectionId).get(topic)!=null){
+                    subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
+                }
                 String sendType = stringMsg[2];
                 msgToReply="MESSAGE\n" +
                         "general_subscipsId\n"+
