@@ -173,15 +173,18 @@ void KeyBoardThread::borrow(vector<string> msg) {
 
 void KeyBoardThread::fReturn(vector<string> msg) {
     string book_name;
+    string topic = msg.at(1);
     for (int i = 2; i <msg.size() ; ++i) {
         book_name+=msg.at(i)+" ";
     }
     book_name = book_name.substr(0,book_name.size()-1);
     string sendMsg = "SEND\n"
-                     "destination:"+ msg.at(1)+"\n\n"+
-                     "Returning "+book_name+" to"+handler->getBookPrevOwner(book_name) +"\n"+   /** get the userName we took the book from  */
+                     "destination:"+ topic+"\n\n"+
+                     "Returning "+book_name+" to "+handler->getBookPrevOwner(book_name) +"\n"+   /** get the userName we took the book from  */
                      "\0";
+    handler->removeBook(topic,book_name);
     handler->sendFrameAscii(sendMsg,'\0');
+
 }
 
 void KeyBoardThread::status(vector<string> msg) {

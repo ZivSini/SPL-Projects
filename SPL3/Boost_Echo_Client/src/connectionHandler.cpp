@@ -324,4 +324,11 @@ bool ConnectionHandler::getKeyBoardCanRun() const {
     return key_board_can_run;
 }
 
+void ConnectionHandler::removeBook(string topic, string book_name) {
+    unordered_map<string, list<string> *>::const_iterator it = topic_books_map.find(topic);
+    if (it != topic_books_map.end()) {
+        it->second->remove(book_name);
+    }
+}
+
 
