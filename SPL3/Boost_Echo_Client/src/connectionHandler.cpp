@@ -1,6 +1,7 @@
 #include "../include/connectionHandler.h"
 #include "../include/KeyBoardThread.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/thread/thread.hpp>
 
 
 
@@ -209,7 +210,7 @@ void ConnectionHandler::run() {
                     }
 //                    break;
                 }
-               else if (msg_body.find("book status") != -1) {
+                else if (msg_body.find("book status") != -1) {
                     cout<< userName+" got status command"<< endl;
                     string booksList;
                     if (!topic_books_map.empty()) {
@@ -258,9 +259,11 @@ void ConnectionHandler::run() {
                 int indexColon = answer_vector.at(1).find(":");
                 string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
-                if (error_msg=="Wrong password"){
                 break;
-}           }
+//                if (error_msg=="Wrong password"){
+
+ //               }
+            }
         }
     }
 
@@ -334,4 +337,10 @@ void ConnectionHandler::removeBook(string topic, string book_name) {
     }
 }
 
-
+void ConnectionHandler::addNewListForNewTopic(string topic) {
+    unordered_map<string, list<string> *>::const_iterator it = topic_books_map.find(topic);
+    if (it == topic_books_map.end()) {
+        list<string> *book_list = new list<string>;
+        topic_books_map[topic] = book_list;
+    }
+}

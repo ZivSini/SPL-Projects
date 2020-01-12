@@ -116,6 +116,7 @@ void KeyBoardThread::join(vector<string> msg_input){
                                      "receipt:"+to_string(receipt_id)+"\n\n"+
                                      "\0";
     handler->sendFrameAscii(subscribe_stomp_message,'\0');
+    handler->addNewListForNewTopic(topic);
     this->topic_id_map[topic]=subscription_id;
     this->topic__receiptId_map[topic]=receipt_id;
     handler->add_to_topic_rcpt_map(topic,receipt_id);

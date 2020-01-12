@@ -80,6 +80,7 @@ public:
     void remove_from_rcptId_cmmnd_map(int id);
 
     void setUserName(string name);
+    void addNewListForNewTopic(string topic);
 
     void addBookToBorrow(string bookName);
 
