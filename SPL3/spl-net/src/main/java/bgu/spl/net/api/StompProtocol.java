@@ -81,6 +81,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 // client doesn't exist
                 else {
                     Client c = new Client(clientName,clientPW,connectionId);
+                    c.setLoggedIn(true);
                     connections.getClientsMap().put(clientName,c);
                     msgToReply = "CONNECTED\n" +
                             version + "\n\n" +
