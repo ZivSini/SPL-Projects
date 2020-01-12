@@ -200,9 +200,9 @@ void ConnectionHandler::run() {
                 }
                 else if (msg_body.find("Returning") != -1) {
                     size_t pos = msg_body.find_last_of(" to ");
-                    int book_name_index = pos-10;
+                    int book_name_index = pos-13;
                     string book_name = msg_body.substr(10, book_name_index);
-                    string user = msg_body.substr(pos + 3, msg_body.size());
+                    string user = msg_body.substr(pos + 1, msg_body.size());
                     if (user == this->userName) {
                         topic_books_map.at(topic)->push_back(book_name);
                     }
