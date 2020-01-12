@@ -150,8 +150,10 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 topic = topic.substring(colonIndex+1);
                 msgReply.setTopic(topic);
                 Integer subsctipId = -1;
-                if(connections.getConnId_topic_subId_map().get(connectionId).get(topic)!=null){
-                    subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
+                if(connections.getConnId_topic_subId_map().containsKey(connectionId)) {
+                    if (connections.getConnId_topic_subId_map().get(connectionId).get(topic) != null) {
+                        subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
+                    }
                 }
                 String sendType = stringMsg[2];
                 msgToReply="MESSAGE\n" +
