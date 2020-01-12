@@ -5,7 +5,6 @@
 
 
 using boost::asio::ip::tcp;
-using boost*;
 
 using std::cin;
 using std::cout;
@@ -257,7 +256,7 @@ void ConnectionHandler::run() {
                 int indexColon = answer_vector.at(1).find(":");
                 string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
-                boost::thread::inte
+                break;
             }
         }
     }
