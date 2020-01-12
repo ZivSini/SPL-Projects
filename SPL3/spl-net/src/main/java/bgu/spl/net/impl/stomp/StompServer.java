@@ -11,7 +11,7 @@ public class StompServer {
 
 //        int port = 7778; // args[]
         int port = Integer.parseInt(args[0]);
-        if (args[1].equals("tpc") ){
+        if (args[1].equals("tpc")) {
 
             TPCserver tpcServer = new TPCserver(
                     port,
@@ -20,8 +20,7 @@ public class StompServer {
             );
 
             tpcServer.serve();
-        }
-        else {
+        } else {
             Reactor reactor_Server = new Reactor<>(
                     Runtime.getRuntime().availableProcessors(),
                     port,
@@ -35,3 +34,4 @@ public class StompServer {
 
 
     }
+}
