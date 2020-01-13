@@ -123,9 +123,12 @@ void ConnectionHandler::run() {
 
     while (connected) {
         string answer_from_server;
+//        getFrameAscii(answer_from_server,'\0');
         if (!getFrameAscii(answer_from_server,'\0')) {
             cout << "Disconnected. Exiting...\n" << endl;
-//            break;
+            socket_.close();
+            connected=false;
+  //          break;
         } else {
             std::vector<std::string> answer_vector;
             boost::split(answer_vector, answer_from_server, boost::is_any_of("\n"));
@@ -260,7 +263,9 @@ void ConnectionHandler::run() {
                 int indexColon = answer_vector.at(1).find(":");
                 string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
-                break;
+                socket_.close();
+                connected=false;
+               break;
 //                if (error_msg=="Wrong password"){
 
  //               }
@@ -344,4 +349,8 @@ void ConnectionHandler::addNewListForNewTopic(string topic) {
         list<string> *book_list = new list<string>;
         topic_books_map[topic] = book_list;
     }
+}
+
+bool ConnectionHandler::is_connected() {
+    return connected;
 }

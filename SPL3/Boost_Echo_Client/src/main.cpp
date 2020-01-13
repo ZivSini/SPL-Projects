@@ -14,7 +14,7 @@ int main (int argc, char *argv[]) {
 //    cout<<v.at(0)<<endl;
 //    cout<<v.at(1)<<endl;
 // ip:
-//    login 132.72.41.132:7778 idan bbb
+//    login 127.0.0.1:7778 ziv aaa
 
 
 
