@@ -20,13 +20,24 @@ ConnectionHandler::~ConnectionHandler() {
     receiptId_command_map.clear();
     receiptId_topic_map.clear();
     booksToBorrow.clear();
+//    auto iter = topic_books_map.begin();
+//    for(auto iter:topic_books_map){
+//        iter.second->clear();
+//        iter.second= nullptr;
+//    }
     auto iter = topic_books_map.begin();
+    int map_size = topic_books_map.size();
     while(iter!=topic_books_map.end())
     {
         iter->second->clear();
-        topic_books_map.erase(iter);
+        delete (iter->second);
+        iter->second=nullptr;
+        topic_books_map.erase(iter->first);
         iter= topic_books_map.begin();
     }
+    bool empty = topic_books_map.empty();
+    cout<<"Topic_books_map is empty? "+to_string(empty)<<endl;
+    topic_books_map.clear();
     close();
 }
 
@@ -157,7 +168,7 @@ void ConnectionHandler::run() {
                 cout<<topic+":"+msg_body<<endl;
                 if (msg_body.find("borrow") != -1) {
                    // cout<< userName+" got borrow command"<< endl;
-                    unordered_map<string, list<string> *>::const_iterator iter = topic_books_map.find(topic);
+                    unordered_map<string, list<string>* >::const_iterator iter = topic_books_map.find(topic);
                     size_t pos = msg_body.find("borrow");
                     string book_name = msg_body.substr(pos + 7, msg_body.size());
                     if (iter != topic_books_map.end()) {
@@ -230,7 +241,7 @@ void ConnectionHandler::run() {
                     string booksList;
                     if (!topic_books_map.empty()) {
                         if(topic_books_map.find(topic)!=topic_books_map.end()) {
-                            list<string> *booksInTheTopic = topic_books_map.at(topic);
+                            list<string>* booksInTheTopic = topic_books_map.at(topic);
                             for (string s: *booksInTheTopic) {
                                 booksList += s + ",";
                             }
@@ -312,7 +323,6 @@ void ConnectionHandler::addBook(string topic, string book_name) {
 
     }
 
-
 }
 
 void ConnectionHandler::add_to_topic_rcpt_map(string topic, int receipt_id) {
@@ -348,7 +358,7 @@ bool ConnectionHandler::getKeyBoardCanRun() const {
 }
 
 void ConnectionHandler::removeBook(string topic, string book_name) {
-    unordered_map<string, list<string> *>::const_iterator it = topic_books_map.find(topic);
+    auto it = topic_books_map.find(topic);
     if (it != topic_books_map.end()) {
         it->second->remove(book_name);
     }

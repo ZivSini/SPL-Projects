@@ -1,5 +1,5 @@
 CFLAGS:=-c -Wall -Weffc++ -g -std=c++11 -Iinclude
-LDFLAGS:=-lboost_system libpthread.so.0
+LDFLAGS:=-lboost_system -pthread
 
 all: client
 	g++ -o -pthread bin/connectionHandler.o bin/KeyBoardThread.o $(LDFLAGS)

@@ -83,7 +83,8 @@ void KeyBoardThread::runKeyBoard() {
     cout<<"handler thread joined"<<endl;
 //            handler->setConnected(false);
     handler_thread.join();
-
+    delete handler;
+    delete(this);
 }
 //}
 
