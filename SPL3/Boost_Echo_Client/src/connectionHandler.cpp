@@ -36,7 +36,7 @@ ConnectionHandler::~ConnectionHandler() {
         iter= topic_books_map.begin();
     }
     bool empty = topic_books_map.empty();
-    cout<<"Topic_books_map is empty? "+to_string(empty)<<endl;
+//    cout<<"Topic_books_map is empty? "+to_string(empty)<<endl;
     topic_books_map.clear();
     close();
 }
@@ -162,9 +162,10 @@ void ConnectionHandler::run() {
             else if(stomp_command=="MESSAGE") {
 //                cout<<answer_from_server<< endl;
                 string msg_body = answer_vector.at(5);
-                string topic = answer_vector.at(3);
-                int posOfColon = topic.find(":");
-                topic = topic.substr(posOfColon + 1);
+                string topic = get_word_after("destination:",answer_vector);
+//                string topic = answer_vector.at(3);
+//                int posOfColon = topic.find(":");
+//                topic = topic.substr(posOfColon + 1);
                 cout<<topic+":"+msg_body<<endl;
                 if (msg_body.find("borrow") != -1) {
                    // cout<< userName+" got borrow command"<< endl;
@@ -258,9 +259,10 @@ void ConnectionHandler::run() {
 
             }
             else if(stomp_command== "RECEIPT") {
-                string full_receipt_id = answer_vector.at(1);
-                int indexColon = full_receipt_id.find(":");
-                string rcpt_id = full_receipt_id.substr(indexColon+1);
+//                string full_receipt_id = answer_vector.at(1);
+//                int indexColon = full_receipt_id.find(":");
+//                string rcpt_id = full_receipt_id.substr(indexColon+1);
+                string rcpt_id = get_word_after("receipt-id:",answer_vector);
                 int receipt_id = stoi(rcpt_id);
                 unordered_map<int, string>::const_iterator it = receiptId_command_map.find(receipt_id);
                 string command = it->second;
@@ -282,8 +284,9 @@ void ConnectionHandler::run() {
             }
 
             else if(stomp_command== "ERROR") {
-                int indexColon = answer_vector.at(1).find(":");
-                string error_msg = answer_vector.at(1).substr(indexColon+1);
+                string error_msg = get_word_after("message:",answer_vector);
+//                int indexColon = answer_vector.at(1).find(":");
+//                string error_msg = answer_vector.at(1).substr(indexColon+1);
                 cout << error_msg << endl;
                 socket_.close();
                 connected=false;
@@ -374,4 +377,24 @@ void ConnectionHandler::addNewListForNewTopic(string topic) {
 
 bool ConnectionHandler::is_connected() {
     return connected;
+}
+
+string ConnectionHandler::get_word_after(string word_before, vector<string> msg_vector) {
+    int index_of_word_before=0;
+    string word_after="found nothing";
+    string contains_word_before="";
+    for (string s:msg_vector){
+        if (s.find(word_before) != std::string::npos) {
+            index_of_word_before = s.find(word_before);
+            contains_word_before=s;
+        }
+    }
+    if(contains_word_before!="")
+        word_after = contains_word_before.substr(index_of_word_before+word_before.length());
+
+
+    return word_after;
+
+
+       return std::__cxx11::string();
 }
