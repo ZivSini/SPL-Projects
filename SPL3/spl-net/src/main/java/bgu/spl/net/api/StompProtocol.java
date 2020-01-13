@@ -139,7 +139,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 connections.getConnId_topic_subId_map().get(connectionId).remove(topic); // removes this topic from the map that hold all this connectionId topic and their subId numbers.
                 /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT\n" +
-                        "receipt:"+receiptId+"\n\n"+
+                        "receipt-id:"+receiptId+"\n\n"+
                         "\u0000";
 //                msgReply.setMsg(msgToReply);
                 Integer connId = connectionId; // so we can use the remove() method with connId as Object and not as index
