@@ -16,6 +16,17 @@ using namespace std;
 ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_),key_board_can_run(false){}
 
 ConnectionHandler::~ConnectionHandler() {
+    books_prevOwner_map.clear();
+    receiptId_command_map.clear();
+    receiptId_topic_map.clear();
+    booksToBorrow.clear();
+    auto iter = topic_books_map.begin();
+    while(iter!=topic_books_map.end())
+    {
+        iter->second->clear();
+        topic_books_map.erase(iter);
+        iter= topic_books_map.begin();
+    }
     close();
 }
 
