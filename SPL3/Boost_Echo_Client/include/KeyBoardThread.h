@@ -18,6 +18,7 @@ using namespace std;
 
 class KeyBoardThread {
 private:
+    ~KeyBoardThread();
     unordered_map<string,int> topic_id_map;
     unordered_map<string,int> topic__receiptId_map;
     int subscription_id; // might need to lock this, DK

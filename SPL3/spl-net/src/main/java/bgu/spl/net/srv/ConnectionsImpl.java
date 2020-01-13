@@ -44,12 +44,13 @@ public class ConnectionsImpl <T>implements Connections<T> {
         if(topics_subsMap.get(channel)!=null) {
             for (int connId : topics_subsMap.get(channel)) {
                 String[] stringMsg = ((String) msg).split("\n");
-                if (stringMsg[0] == "MESSAGE") {
+                if (stringMsg[0].equals("MESSAGE")) {
                     String msg_with_subsId = "";
                     String subsId = connId_topic_subId_map.get(connId).get(channel).toString(); // gets the subscripId of this connId for this topic/channel
                     stringMsg[1] = "subscription:" + subsId; // replaces it
                     for (String s : stringMsg)
-                        msg_with_subsId += s; //create the new message with the subscripId;
+                        msg_with_subsId += s+"\n"; //create the new message with the subscripId;
+                    msg_with_subsId=msg_with_subsId.substring(0,msg_with_subsId.length()-1)+"\u0000";
                     send(connId, (T) msg_with_subsId);
                 } else
                     send(connId, msg);

@@ -78,7 +78,8 @@ public:
     void add_to_topic_rcpt_map(string topic, int receipt_id);
     void add_to_rcptId_cmmnd_map(int id,string command);
     void remove_from_rcptId_cmmnd_map(int id);
-
+    void setConnected(bool);
+    bool is_connected();
     void setUserName(string name);
     void addNewListForNewTopic(string topic);
 
