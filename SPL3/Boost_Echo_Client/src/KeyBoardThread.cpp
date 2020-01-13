@@ -21,66 +21,71 @@ using namespace std;
 
 
 void KeyBoardThread::runKeyBoard() {
-    while (true) {
-        string first_input; // we know it's gonna be login command
-        getline(cin, first_input);
-        std::vector<std::string> msg_input;
-        boost::split(msg_input, first_input, boost::is_any_of(" "));
-        string keyboard_command = msg_input.at(0);
-        string input_host_port = msg_input.at(1);
-        vector<string> host_port;
-        boost::split(host_port, input_host_port, boost::is_any_of(":"));
-        string host = host_port.at(0);
-        string port = host_port.at(1);
-        userName = msg_input.at(2);
-        string password = msg_input.at(3);
-        this->handler = new ConnectionHandler(host, stol(port));
-        if (!handler->connect()) {
-            cout << "Could not connect to server" << endl;
-            //TODO: close everything and shut or something
-        }
-        thread handler_thread(&ConnectionHandler::run, handler);
+//    while (true) {
+    string first_input; // we know it's gonna be login command
+    getline(cin, first_input);
+    std::vector<std::string> msg_input;
+    boost::split(msg_input, first_input, boost::is_any_of(" "));
+    string keyboard_command = msg_input.at(0);
+    string input_host_port = msg_input.at(1);
+    vector<string> host_port;
+    boost::split(host_port, input_host_port, boost::is_any_of(":"));
+    string host = host_port.at(0);
+    string port = host_port.at(1);
+    userName = msg_input.at(2);
+    string password = msg_input.at(3);
+    this->handler = new ConnectionHandler(host, stol(port));
+    if (!handler->connect()) {
+        cout << "Could not connect to server" << endl;
+        //TODO: close everything and shut or something
+    }
+    thread handler_thread(&ConnectionHandler::run, handler);
 //        cout<<"Thread id: "+handler_thread.get_id()+" started"<<endl;
-        handler->setUserName(userName);
-        string connect_stomp_message = "CONNECT\n"
-                                       "accept-version:1.2\n"
-                                       "host:stomp.cs.bgu.ac.il\n"
-                                       "login:" + userName + "\n" +
-                                       "passcode:" + password + "\n\n" +
-                                       "\0";
-        handler->sendFrameAscii(connect_stomp_message, '\0');
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        if (handler->getKeyBoardCanRun())
-            terminated=false;
-        while (!terminated) {
-            string input;
-            getline(cin, input);
-            std::vector<std::string> msg_input;
-            boost::split(msg_input, input, boost::is_any_of(" "));
-            string keyboard_command = msg_input.at(0);
-            if (keyboard_command == "login") {
-                login(msg_input);
-            }
-            else if (keyboard_command == "join") {
-                join(msg_input);
-            } else if (keyboard_command == "exit") {
-                exit(msg_input);
-            } else if (keyboard_command == "add") {
-                add(msg_input);
-            } else if (keyboard_command == "borrow") borrow(msg_input);
-            else if (keyboard_command == "return") { fReturn(msg_input); }
-            else if (keyboard_command == "status")status(msg_input);
-            else if (keyboard_command == "logout")logout();
-
-
+    handler->setUserName(userName);
+    string connect_stomp_message = "CONNECT\n"
+                                   "accept-version:1.2\n"
+                                   "host:stomp.cs.bgu.ac.il\n"
+                                   "login:" + userName + "\n" +
+                                   "passcode:" + password + "\n\n" +
+                                   "\0";
+    handler->sendFrameAscii(connect_stomp_message, '\0');
+//        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//        if (handler->getKeyBoardCanRun())
+//            terminated=false;
+    while (!terminated) {
+        if(!handler->is_connected()) {
+            terminated = true;
+            break;
         }
-      //  if (handler->getKeyBoardCanRun())
-      cout<<"handler thread joied"<<endl;
-//            handler->setConnected(false);
-            handler_thread.join();
+        string input;
+        getline(cin, input);
+        std::vector<std::string> msg_input;
+        boost::split(msg_input, input, boost::is_any_of(" "));
+        string keyboard_command = msg_input.at(0);
+
+        if (keyboard_command == "login") {
+            login(msg_input);
+        }
+        else if (keyboard_command == "join") {
+            join(msg_input);
+        } else if (keyboard_command == "exit") {
+            exit(msg_input);
+        } else if (keyboard_command == "add") {
+            add(msg_input);
+        } else if (keyboard_command == "borrow") borrow(msg_input);
+        else if (keyboard_command == "return") { fReturn(msg_input); }
+        else if (keyboard_command == "status")status(msg_input);
+        else if (keyboard_command == "logout")logout();
+
 
     }
+    //  if (handler->getKeyBoardCanRun())
+    cout<<"handler thread joined"<<endl;
+//            handler->setConnected(false);
+    handler_thread.join();
+
 }
+//}
 
 
 void KeyBoardThread::login(vector<string> msg_input) {
@@ -97,13 +102,13 @@ void KeyBoardThread::login(vector<string> msg_input) {
 //    } else {
 //        thread handler_thread1(&ConnectionHandler::run, handler);
 //        handler->setUserName(userName);
-        string connect_stomp_message ="CONNECT\n"
-                                      "accept-version:1.2\n"
-                                      "host:stomp.cs.bgu.ac.il\n"
-                                      "login:" + userName + "\n" +
-                                      "passcode:" + password + "\n\n" +
-                                      "\0";
-        handler->sendFrameAscii(connect_stomp_message,'\0');
+    string connect_stomp_message ="CONNECT\n"
+                                  "accept-version:1.2\n"
+                                  "host:stomp.cs.bgu.ac.il\n"
+                                  "login:" + userName + "\n" +
+                                  "passcode:" + password + "\n\n" +
+                                  "\0";
+    handler->sendFrameAscii(connect_stomp_message,'\0');
 //        handler_thread1.join();
 //        cout<<"thread of login func finished join"<<endl;
 //    }
@@ -205,13 +210,13 @@ void KeyBoardThread::logout() {
     handler->add_to_rcptId_cmmnd_map(receipt_id,"discon");
     handler->sendFrameAscii(disconnect_stomp_message,'\0');
     this->receipt_id++;
-     this->terminated= true;
+    this->terminated= true;
 
 
 }
 
 KeyBoardThread::KeyBoardThread():topic_id_map(),topic__receiptId_map(),subscription_id(0),receipt_id(0),handler(),userName(""),terminated(true){
-    terminated=true;
+    terminated=false;
 }
 
 //void KeyBoardThread::setTerminated(bool is_terminated) {
