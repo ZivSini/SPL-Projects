@@ -9,9 +9,9 @@ public class StompServer {
 
     public static void main(String[] args) {
 
-//        int port = 7778; // args[]
-        int port = Integer.parseInt(args[0]);
-        if (args[1].equals("tpc")) {
+        int port = 7778; // args[]
+//        int port = Integer.parseInt(args[0]);
+//        if (args[1].equals("tpc")) {
 
             TPCserver tpcServer = new TPCserver(
                     port,
@@ -20,16 +20,16 @@ public class StompServer {
             );
 
             tpcServer.serve();
-        } else {
-            Reactor reactor_Server = new Reactor<>(
-                    Runtime.getRuntime().availableProcessors(),
-                    port,
-                    () -> new StompProtocol<>(),
-                    StompMessageEncoderDecoder::new
-            );
-
-            reactor_Server.serve();
-        }
+//        } else {
+//            Reactor reactor_Server = new Reactor<>(
+//                    Runtime.getRuntime().availableProcessors(),
+//                    port,
+//                    () -> new StompProtocol<>(),
+//                    StompMessageEncoderDecoder::new
+//            );
+//
+//            reactor_Server.serve();
+//        }
     }
 
 
