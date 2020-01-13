@@ -14,7 +14,7 @@ int main (int argc, char *argv[]) {
 //    cout<<v.at(0)<<endl;
 //    cout<<v.at(1)<<endl;
 // ip:
-//    login 127.0.0.1:7778 ziv aaa
+//    login 127.0.0.1:7777 ziv aaa
 
 
 
@@ -24,6 +24,7 @@ int main (int argc, char *argv[]) {
     KeyBoardThread* th = new KeyBoardThread();
     thread real_thread(&KeyBoardThread::runKeyBoard,th);
     real_thread.join();
+
 
     return 0;
 }
