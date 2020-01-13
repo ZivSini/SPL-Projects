@@ -9,7 +9,7 @@ public class StompServer {
 
     public static void main(String[] args) {
 
-        int port = 7778; // args[]
+        int port = 7777; // args[]
 //        int port = Integer.parseInt(args[0]);
 //        if (args[1].equals("tpc")) {
 
@@ -31,7 +31,4 @@ public class StompServer {
 //            reactor_Server.serve();
 //        }
     }
-
-
 }
-
