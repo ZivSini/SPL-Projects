@@ -62,7 +62,6 @@ void KeyBoardThread::runKeyBoard() {
         std::vector<std::string> msg_input;
         boost::split(msg_input, input, boost::is_any_of(" "));
         string keyboard_command = msg_input.at(0);
-
         if (keyboard_command == "login") {
             login(msg_input);
         }
