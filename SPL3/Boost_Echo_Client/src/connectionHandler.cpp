@@ -396,5 +396,5 @@ string ConnectionHandler::get_word_after(string word_before, vector<string> msg_
     return word_after;
 
 
-       return std::__cxx11::string();
+
 }
