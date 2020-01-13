@@ -36,12 +36,12 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
         String msgToReply = "";
         switch (stringMsg[0]){
             case  ("CONNECT"): {
-                String version = stringMsg[1].substring(7); // stringMsg[1].substring(0,6)="accept-"
-                String clientName = stringMsg[3].substring(6); // stringMsg[3].substring(0,5)="login:"
-                String clientPW = stringMsg[4].substring(9); // stringMsg[4].substring(0,8)="password:"
-
-
-                //TODO: HANDLE SOCKET ERROR
+                String version = getWhatsAfter("accept-",stringMsg); // stringMsg[1].substring(0,6)="accept-"
+                String clientName = getWhatsAfter("login:",stringMsg); // stringMsg[3].substring(0,5)="login:"
+                String clientPW = getWhatsAfter("password:",stringMsg); // stringMsg[4].substring(0,8)="password:"
+                //  String version = stringMsg[1].substring(7); // stringMsg[1].substring(0,6)="accept-"
+                //  String clientName = stringMsg[3].substring(6); // stringMsg[3].substring(0,5)="login:"
+                // String clientPW = stringMsg[4].substring(9); // stringMsg[4].substring(0,8)="password:"
 
 
                 // client exist
@@ -95,12 +95,17 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 break;
             }
             case  ("SUBSCRIBE"):{
-                int  colonIndex = stringMsg[1].indexOf(":");
-                String topic = stringMsg[1].substring(colonIndex+1);
+
+                String topic = getWhatsAfter("destination:",stringMsg);
+                Integer subscriptionId = Integer.parseInt(getWhatsAfter("id",stringMsg));
+                String receiptId = getWhatsAfter("receipt:",stringMsg);
+                    /** not in use anymore*/
+//                int  colonIndex = stringMsg[1].indexOf(":");
+//                String topic = stringMsg[1].substring(colonIndex+1);
 //                msgReply.setTopic(topic);
-//                //TODO: deal with the sub id shit - a.k.a. stringMsg[2]
-                colonIndex = stringMsg[2].indexOf(":");
-                Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
+           //     colonIndex = stringMsg[2].indexOf(":");
+          //      Integer subscriptionId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
+
                 if(!connections.getConnId_topic_subId_map().containsKey(connectionId)){ // if the connId doesn't have a topic he is registered to yet
                     Map<String,Integer> topics_subsId_map = new ConcurrentHashMap<>();
                     connections.getConnId_topic_subId_map().put(connectionId,topics_subsId_map); // initialize it
@@ -109,8 +114,8 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 this.subsId_topics_Map.put(subscriptionId,topic);
                 /** need to add the subscription id of this user to the connectionImpl map that hold all of the subscrip' id of all the client so we can add this id to the message */
            //     connections.getConnId_topic_subId_map().put()
-                colonIndex = stringMsg[3].indexOf(":");
-                String receiptId = stringMsg[3].substring(colonIndex+1);
+//                colonIndex = stringMsg[3].indexOf(":");
+//                String receiptId = stringMsg[3].substring(colonIndex+1);
                 if (!connections.getTopics_subsMap().containsKey(topic)){
                     List<Integer> conn_id_list = new ArrayList<>();
                     connections.getTopics_subsMap().put(topic,conn_id_list);
@@ -127,12 +132,16 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             }
             case  ("UNSUBSCRIBE"):{
 
-                int  colonIndex = stringMsg[1].indexOf(":");
-                Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex+1));
+                Integer subscriptionId = Integer.parseInt(getWhatsAfter("id",stringMsg));
+                String receiptId = getWhatsAfter("receipt:",stringMsg);
+
+
+//                int  colonIndex = stringMsg[1].indexOf(":");
+//                Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex+1));
                 String topic = subsId_topics_Map.get(subscriptionId);
                 connections.getConnId_topic_subId_map().get(connectionId).remove(topic); // removes this topic from the map that hold all this connectionId topic and their subId numbers.
-                colonIndex = stringMsg[2].indexOf(":");
-                Integer receiptId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
+//                colonIndex = stringMsg[2].indexOf(":");
+//                Integer receiptId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
                 /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT\n" +
                         "receipt:"+receiptId+"\n\n"+
@@ -145,9 +154,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                 break;
             }
             case  ("SEND"):{
-                String topic = stringMsg[1];
-                int colonIndex = topic.indexOf(":");
-                topic = topic.substring(colonIndex+1);
+                String topic = getWhatsAfter("destination:",stringMsg);
                 msgReply.setTopic(topic);
                 Integer subsctipId = -1;
                 if(connections.getConnId_topic_subId_map().containsKey(connectionId)) {
@@ -155,12 +162,18 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                         subsctipId = connections.getConnId_topic_subId_map().get(connectionId).get(topic);
                     }
                 }
-                String sendType = stringMsg[2];
+                int indexOfBody=0;
+                // find the index of the body in the stomp message
+                for (int i=0;i<stringMsg.length;i++){
+                    if (stringMsg[i].equals(""))
+                        indexOfBody=i+1;
+                }
+                String messageBody = stringMsg[indexOfBody];
                 msgToReply="MESSAGE\n" +
                         "general_subscipsId\n"+
                         "Messege-id:"+ IdGetter.getInstance().getMsgId() +"\n"+
                         "destination:"+topic+"\n\n"+
-                        stringMsg[3]+"\n \u0000";
+                        messageBody+"\n \u0000";
 
 
                 msgReply.setMsg(msgToReply);
@@ -185,8 +198,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
                     }
 
                 }
-                int colonIndex = stringMsg[1].indexOf(":");
-                String receiptId = stringMsg[1].substring(colonIndex+1);
+                String receiptId = getWhatsAfter("receipt:",stringMsg);
                 /** seccond line MUST be receipt id */
                 msgToReply="RECEIPT\n" +
                         "receipt-id:"+receiptId+"\n\n"
@@ -215,5 +227,23 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
     public Connections<T> getConnections() {
         return connections;
     }
+
+    public String getWhatsAfter(String wordForAfter, String [] whereToSearch ){
+        int indexOfWFA=0;
+        String wordAfter="found nothing";
+        String containsWFA="";
+        for (String s:whereToSearch){
+            if (s.contains(wordForAfter)) {
+                indexOfWFA = s.indexOf(wordForAfter);
+                containsWFA=s;
+            }
+        }
+        if(!containsWFA.equals(""))
+            wordAfter = containsWFA.substring(indexOfWFA+wordForAfter.length());
+
+
+    return wordAfter;
+    }
+
 
 }
