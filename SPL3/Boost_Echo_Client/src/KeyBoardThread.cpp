@@ -24,6 +24,10 @@ void KeyBoardThread::runKeyBoard() {
 //    while (true) {
     string first_input; // we know it's gonna be login command
     getline(cin, first_input);
+    while(first_input.substr(0,5)!="login")
+    {
+        getline(cin,first_input);
+    }
     std::vector<std::string> msg_input;
     boost::split(msg_input, first_input, boost::is_any_of(" "));
     string keyboard_command = msg_input.at(0);
@@ -138,7 +142,7 @@ void KeyBoardThread::exit(vector<string> msg_input) {
     int receiptId = it->second;
     string unsubscribe_stomp_message = "UNSUBSCRIBE\n"
                                        "id:" + to_string(id) + "\n" +
-                                       "receipt-id:"+to_string(receiptId)+"\n\n"+
+                                       "receipt:"+to_string(receiptId)+"\n\n"+
                                        "\0";
     handler->sendFrameAscii(unsubscribe_stomp_message,'\0');
     handler->remove_from_rcptId_cmmnd_map(receiptId);
@@ -208,7 +212,7 @@ void KeyBoardThread::status(vector<string> msg_input) {
 
 void KeyBoardThread::logout() {
     string disconnect_stomp_message = "DISCONNECT\n"
-                                      "receipt-id:" + to_string(receipt_id) + "\n\n" +
+                                      "receipt:" + to_string(receipt_id) + "\n\n" +
                                       "\0";
     handler->add_to_rcptId_cmmnd_map(receipt_id,"discon");
     handler->sendFrameAscii(disconnect_stomp_message,'\0');

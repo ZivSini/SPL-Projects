@@ -9,4 +9,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}-g -Wall -Weffc++ -std=c++11 -pthread")
 
 find_package(Boost 1.56 REQUIRED COMPONENTS
         date_time filesystem iostreams)
-target_link_libraries(SPL3 Boost::date_time Boost::filesystem Boost::iostreams)
+target_link_libraries(SPL3 Boost::date_time Boost::filesystem Boost::iostreams libpthread.so.0)
