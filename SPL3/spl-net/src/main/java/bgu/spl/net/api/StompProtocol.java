@@ -97,7 +97,7 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             case  ("SUBSCRIBE"):{
 
                 String topic = getWhatsAfter("destination:",stringMsg);
-                Integer subscriptionId = Integer.parseInt(getWhatsAfter("id",stringMsg));
+                Integer subscriptionId = Integer.parseInt(getWhatsAfter("id:",stringMsg));
                 String receiptId = getWhatsAfter("receipt:",stringMsg);
                     /** not in use anymore*/
 //                int  colonIndex = stringMsg[1].indexOf(":");
@@ -132,16 +132,11 @@ public class StompProtocol<T> implements StompMessagingProtocol<T> {
             }
             case  ("UNSUBSCRIBE"):{
 
-                Integer subscriptionId = Integer.parseInt(getWhatsAfter("id",stringMsg));
+                Integer subscriptionId = Integer.parseInt(getWhatsAfter("id:",stringMsg));
                 String receiptId = getWhatsAfter("receipt:",stringMsg);
 
-
-//                int  colonIndex = stringMsg[1].indexOf(":");
-//                Integer subscriptionId = Integer.parseInt(stringMsg[1].substring(colonIndex+1));
                 String topic = subsId_topics_Map.get(subscriptionId);
                 connections.getConnId_topic_subId_map().get(connectionId).remove(topic); // removes this topic from the map that hold all this connectionId topic and their subId numbers.
-//                colonIndex = stringMsg[2].indexOf(":");
-//                Integer receiptId = Integer.parseInt(stringMsg[2].substring(colonIndex+1));
                 /** seccond line MUST be receipt id */
                 msgToReply ="RECEIPT\n" +
                         "receipt:"+receiptId+"\n\n"+
