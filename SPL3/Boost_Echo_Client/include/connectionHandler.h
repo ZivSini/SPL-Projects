@@ -40,7 +40,7 @@ private:
     list<string> booksToBorrow;
     boost::mutex mtx;
 public:
-    const boost::mutex &getMtx();
+    boost::mutex &getMtx();
 
 private:
     bool really_connected;

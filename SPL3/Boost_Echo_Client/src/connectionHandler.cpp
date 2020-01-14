@@ -400,6 +400,6 @@ string ConnectionHandler::get_word_after(string word_before, vector<string> msg_
 
 }
 
-const boost::mutex &ConnectionHandler::getMtx() {
+ boost::mutex &ConnectionHandler::getMtx() {
     return mtx;
 }
