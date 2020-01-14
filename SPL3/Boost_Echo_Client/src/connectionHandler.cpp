@@ -13,7 +13,8 @@ using std::cerr;
 using std::endl;
 using namespace std;
 
-ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_),key_board_can_run(false){}
+ConnectionHandler::ConnectionHandler(string host, short port,boost::mutex& mtx): host_(host), port_(port), io_service_(), socket_(io_service_),key_board_can_run(false),mtx(mtx),really_connected(
+        false){}
 
 ConnectionHandler::~ConnectionHandler() {
     books_prevOwner_map.clear();
@@ -397,4 +398,8 @@ string ConnectionHandler::get_word_after(string word_before, vector<string> msg_
 
 
 
+}
+
+const boost::mutex &ConnectionHandler::getMtx() {
+    return mtx;
 }

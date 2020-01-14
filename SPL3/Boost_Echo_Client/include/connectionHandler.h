@@ -7,6 +7,10 @@
 #include <list>
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
+#include <mutex>
+#include <thread>
+#include <boost/thread/mutex.hpp>
+
 
 using namespace std;
 
@@ -26,6 +30,7 @@ private:
     unordered_map<int,string> receiptId_command_map;
     bool key_board_can_run;
     string get_word_after(string word_before, vector<string> msg_vector);
+    
 public:
     bool getKeyBoardCanRun() const;
 
@@ -33,6 +38,12 @@ private:
 
     string userName;
     list<string> booksToBorrow;
+    boost::mutex mtx;
+public:
+    const boost::mutex &getMtx();
+
+private:
+    bool really_connected;
 
 public:
     ConnectionHandler(std::string host, short port);
@@ -83,7 +94,6 @@ public:
     bool is_connected();
     void setUserName(string name);
     void addNewListForNewTopic(string topic);
-
     void addBookToBorrow(string bookName);
 
     void removeBookToBorrow(string bookName);

@@ -7,6 +7,7 @@
 #include <mutex>
 #include <thread>
 #include <boost/algorithm/string.hpp>
+#include <boost/thread.hpp>
 #include "../include/connectionHandler.h"
 
 void login(vector<std::string> vector);
@@ -22,7 +23,11 @@ using namespace std;
 
 void KeyBoardThread::runKeyBoard() {
 //    while (true) {
-    string first_input; // we know it's gonna be login command
+//boost::mutex &mtx;
+//boost::unique_lock<mutex>& lock(mtx);
+
+
+    string first_input;
     getline(cin, first_input);
     while(first_input.substr(0,5)!="login")
     {
@@ -56,6 +61,9 @@ void KeyBoardThread::runKeyBoard() {
 //        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 //        if (handler->getKeyBoardCanRun())
 //            terminated=false;
+    boost::mutex::scoped_lock lock(handler->getMtx());
+    boost::condition_variable condition;
+        while(!handler->is_connected()) condition.wait(lock);
     while (!terminated) {
         if(!handler->is_connected()) {
             terminated = true;
